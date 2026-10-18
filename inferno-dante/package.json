@@ -1,7 +1,7 @@
 {
   "name": "inferno-dante",
   "version": "1.0.0",
-  "description": "Motion graphic vertical inspirado no Inferno de Dante, feito com Remotion",
+  "description": "Edit vertical sombria sobre o Inferno de Dante, com gravuras de Gustave Doré, feita com Remotion",
   "repository": {},
   "license": "UNLICENSED",
   "engines": {
@@ -32,7 +32,7 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "render": "remotion render Inferno out/inferno.mp4",
-    "soundtrack": "node scripts/generate-soundtrack.mjs"
+    "audio": "python3 scripts/mix-audio.py"
   },
   "allowScripts": {
     "esbuild": false

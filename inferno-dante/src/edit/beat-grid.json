@@ -1,0 +1,15 @@
+{
+  "fps": 30,
+  "durationSeconds": 56.5,
+  "music": {
+    "file": "Hitman.mp3",
+    "title": "Hitman",
+    "author": "Kevin MacLeod",
+    "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3",
+    "license": "CC BY 4.0",
+    "startInTrack": 28.1,
+    "endInTrack": 79.56,
+    "beatSeconds": 0.804,
+    "dropInTrack": 51.415
+  }
+}
