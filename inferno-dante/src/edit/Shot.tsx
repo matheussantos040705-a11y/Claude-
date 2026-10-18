@@ -10,12 +10,21 @@ import {
   useVideoConfig,
   type InteractivitySchema,
 } from "remotion";
+import { Fog } from "../components/Fog";
 
-type Tone = "ash" | "fire" | "blood" | "ice";
+type Tone =
+  | "paint" // oil paintings: natural colour, matte blacks
+  | "statue" // marble and bronze: cool, a little desaturated
+  | "ash" // Doré engravings on warm paper
+  | "fire"
+  | "ice"
+  | "haze" // dark silhouettes in a blown-out white fog
+  | "red" // red monochrome
+  | "threshold"; // 1-bit black and white
 
 type ShotProps = {
-  /** File name in public/plates, without extension */
-  readonly plate: string;
+  /** Image path inside public/ */
+  readonly src: string;
   /** Point of interest, 0..1, kept in frame and used as zoom origin */
   readonly focusX?: number;
   readonly focusY?: number;
@@ -35,10 +44,14 @@ type ShotProps = {
   readonly split?: number;
   /** Frames shown as a negative at the cut */
   readonly invert?: number;
-  /** Frames (relative to the shot) that get a smaller punch, e.g. mid-shot beats */
+  /** Frames (relative to the shot) that get a smaller punch */
   readonly pulses?: number[];
   readonly fadeIn?: number;
   readonly fadeOut?: number;
+  /** Frames to slide up into frame from below, leaving black behind */
+  readonly slideIn?: number;
+  /** Frames to slide up out of frame at the end */
+  readonly slideOut?: number;
 };
 
 const decay = (frame: number, at: number, length: number) =>
@@ -50,28 +63,37 @@ const decay = (frame: number, at: number, length: number) =>
 
 const toneFilter = (tone: Tone, light: number) => {
   switch (tone) {
+    case "paint":
+      return `contrast(1.08) saturate(0.9) brightness(${1.2 * light})`;
+    case "statue":
+      return `saturate(0.55) contrast(1.18) brightness(${1.0 * light})`;
     case "fire":
-      return `grayscale(1) sepia(1) saturate(2.6) hue-rotate(-22deg) contrast(1.45) brightness(${0.8 * light})`;
-    case "blood":
-      return `grayscale(1) sepia(1) saturate(4.2) hue-rotate(-42deg) contrast(1.55) brightness(${0.72 * light})`;
+      return `grayscale(1) sepia(0.9) saturate(1.7) hue-rotate(-14deg) contrast(1.3) brightness(${0.9 * light})`;
     case "ice":
-      return `grayscale(1) sepia(0.55) hue-rotate(168deg) saturate(1.7) contrast(1.4) brightness(${0.82 * light})`;
+      return `grayscale(1) sepia(0.45) hue-rotate(168deg) saturate(1.5) contrast(1.3) brightness(${0.88 * light})`;
+    case "haze":
+      // Maps the grey backdrop to white and the bronze to near black.
+      return "grayscale(1) brightness(1.23) contrast(2.4) blur(3.5px)";
+    case "red":
+      return "grayscale(1) contrast(1.6) brightness(1.2)";
+    case "threshold":
+      return "grayscale(1) contrast(30) brightness(1.05)";
     default:
-      return `grayscale(1) contrast(1.45) brightness(${0.84 * light})`;
+      return `grayscale(1) sepia(0.28) contrast(1.28) brightness(${0.94 * light})`;
   }
 };
 
-// One engraving on screen: graded, framed on its point of interest, with a
-// slow camera move and the hits of an edit (punch, shake, flash, RGB split).
+// One image on screen: graded, framed on its point of interest, with a slow
+// push-in and, where the edit asks for it, the hits at the cut.
 const ShotInner: React.FC<ShotProps> = ({
-  plate,
+  src,
   focusX = 0.5,
   focusY = 0.5,
-  zoomFrom = 1.04,
-  zoomTo = 1.16,
+  zoomFrom = 1.03,
+  zoomTo = 1.1,
   panX = 0,
   panY = 0,
-  tone = "ash",
+  tone = "paint",
   punch = 0,
   flash = 0,
   shake = 0,
@@ -80,10 +102,13 @@ const ShotInner: React.FC<ShotProps> = ({
   pulses = [],
   fadeIn = 0,
   fadeOut = 0,
+  slideIn = 0,
+  slideOut = 0,
 }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
-  const filterId = `split-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const id = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const filterId = `split-${id}`;
 
   const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
     extrapolateLeft: "clamp",
@@ -92,15 +117,32 @@ const ShotInner: React.FC<ShotProps> = ({
   const hit = decay(frame, 0, 9);
   const pulse = pulses.reduce((sum, p) => sum + decay(frame, p, 7), 0);
   const scale =
-    (zoomFrom + (zoomTo - zoomFrom) * progress) * (1 + punch * hit + 0.05 * pulse);
+    (zoomFrom + (zoomTo - zoomFrom) * progress) * (1 + punch * hit + 0.04 * pulse);
   const shakeAmount = shake * decay(frame, 0, 12) + shake * 0.4 * pulse;
-  const shakeX = noise2D(`${plate}-sx`, frame * 0.9, 0) * shakeAmount;
-  const shakeY = noise2D(`${plate}-sy`, frame * 0.9, 0) * shakeAmount;
+  const shakeX = noise2D(`${src}-sx`, frame * 0.9, 0) * shakeAmount;
+  const shakeY = noise2D(`${src}-sy`, frame * 0.9, 0) * shakeAmount;
 
-  const flickerSpeed = tone === "fire" || tone === "blood" ? 0.35 : 0.12;
-  const flickerDepth = tone === "fire" || tone === "blood" ? 0.14 : 0.05;
-  const light = 1 + flickerDepth * noise2D(`${plate}-light`, frame * flickerSpeed, 0);
+  const flickers = tone === "fire";
+  const light =
+    1 + (flickers ? 0.1 : 0.03) * noise2D(`${src}-light`, frame * (flickers ? 0.35 : 0.1), 0);
   const splitAmount = split * decay(frame, 0, 6) + split * 0.5 * pulse;
+
+  // Slide transitions: the image travels a full frame height in a few frames.
+  const slide =
+    (slideIn
+      ? interpolate(frame, [0, slideIn], [100, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.2, 0.8, 0.3, 1),
+        })
+      : 0) +
+    (slideOut
+      ? interpolate(frame, [durationInFrames - slideOut, durationInFrames], [0, -100], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+          easing: Easing.bezier(0.7, 0, 0.8, 0.2),
+        })
+      : 0);
 
   const opacity =
     (fadeIn
@@ -137,7 +179,15 @@ const ShotInner: React.FC<ShotProps> = ({
           <feBlend in="rg" in2="b2" mode="screen" />
         </filter>
       </svg>
-      <div style={{ position: "absolute", inset: 0, overflow: "hidden", opacity }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          opacity,
+          translate: `0px ${slide}%`,
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -148,7 +198,7 @@ const ShotInner: React.FC<ShotProps> = ({
           }}
         >
           <Img
-            src={staticFile(`plates/${plate}.jpg`)}
+            src={staticFile(src)}
             style={{
               position: "absolute",
               width: "100%",
@@ -159,28 +209,51 @@ const ShotInner: React.FC<ShotProps> = ({
             }}
           />
         </div>
-        {tone === "fire" || tone === "blood" ? (
+
+        {tone === "paint" || tone === "ash" || tone === "statue" ? (
+          // Matte blacks: nothing gets darker than a deep, slightly green grey.
+          <div style={{ position: "absolute", inset: 0, backgroundColor: "#131614", mixBlendMode: "lighten" }} />
+        ) : null}
+        {tone === "fire" ? (
           <div
             style={{
               position: "absolute",
               inset: 0,
               mixBlendMode: "screen",
-              opacity: 0.55 * light,
+              opacity: 0.45 * light,
               background:
-                tone === "fire"
-                  ? "radial-gradient(ellipse 90% 45% at 50% 100%, rgba(255, 110, 30, 0.45) 0%, rgba(120, 20, 0, 0) 70%)"
-                  : "radial-gradient(ellipse 90% 45% at 50% 100%, rgba(200, 20, 10, 0.4) 0%, rgba(80, 0, 0, 0) 70%)",
+                "radial-gradient(ellipse 90% 45% at 50% 100%, rgba(255, 110, 30, 0.4) 0%, rgba(120, 20, 0, 0) 70%)",
             }}
           />
         ) : null}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 62%, rgba(0,0,0,0.75) 100%)",
-          }}
-        />
+        {tone === "haze" ? (
+          <>
+            <Fog id={`haze-${id}`} seed={5} rgb={[1, 1, 1]} density={1.3} speedX={1.2} speedY={-0.4} opacity={0.75} />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                mixBlendMode: "screen",
+                background:
+                  "radial-gradient(ellipse 70% 50% at 50% 40%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 60%, rgba(255,255,255,0) 100%)",
+              }}
+            />
+          </>
+        ) : null}
+        {tone === "red" ? (
+          <>
+            <div style={{ position: "absolute", inset: 0, backgroundColor: "#ff1208", mixBlendMode: "multiply" }} />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                mixBlendMode: "screen",
+                background:
+                  "radial-gradient(ellipse 80% 60% at 70% 30%, rgba(255, 210, 210, 0.45) 0%, rgba(255, 60, 60, 0) 70%)",
+              }}
+            />
+          </>
+        ) : null}
         <div
           style={{
             position: "absolute",
@@ -195,11 +268,11 @@ const ShotInner: React.FC<ShotProps> = ({
 };
 
 const shotSchema = {
-  plate: { type: "string", default: "caronte", description: "Gravura" },
+  src: { type: "string", default: "shots/ugolino-rosto.jpg", description: "Imagem" },
   focusX: { type: "number", default: 0.5, min: 0, max: 1, step: 0.01, description: "Foco X", hiddenFromList: false },
   focusY: { type: "number", default: 0.5, min: 0, max: 1, step: 0.01, description: "Foco Y", hiddenFromList: false },
-  zoomFrom: { type: "number", default: 1.04, min: 1, max: 3, step: 0.01, description: "Zoom inicial", hiddenFromList: false },
-  zoomTo: { type: "number", default: 1.16, min: 1, max: 3, step: 0.01, description: "Zoom final", hiddenFromList: false },
+  zoomFrom: { type: "number", default: 1.03, min: 1, max: 3, step: 0.01, description: "Zoom inicial", hiddenFromList: false },
+  zoomTo: { type: "number", default: 1.1, min: 1, max: 3, step: 0.01, description: "Zoom final", hiddenFromList: false },
   punch: { type: "number", default: 0, min: 0, max: 1, step: 0.01, description: "Punch no corte", hiddenFromList: false },
   flash: { type: "number", default: 0, min: 0, max: 1, step: 0.05, description: "Flash no corte", hiddenFromList: false },
   shake: { type: "number", default: 0, min: 0, max: 60, step: 1, description: "Tremida", hiddenFromList: false },

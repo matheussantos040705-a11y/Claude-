@@ -1,22 +1,21 @@
 import grid from "./beat-grid.json";
 
-// Every cut is placed on the beat grid of the music, measured in
-// src/edit/beat-grid.json (shared with scripts/mix-audio.py).
+// Every cut sits on the beat grid of the music, described in
+// src/edit/beat-grid.json (shared with scripts/mix-audio.py). The edit uses
+// two pieces of the track back to back; edit beat 0 is the first beat of
+// the first piece.
 export const FPS = grid.fps;
-export const DURATION_IN_FRAMES = Math.round(grid.durationSeconds * FPS);
 
-const { startInTrack, endInTrack, beatSeconds, dropInTrack } = grid.music;
-const DROP_SECONDS = dropInTrack - startInTrack;
-// The heavier half of the drop, where the snares come in.
-const SNARES_SECONDS = DROP_SECONDS + 12.5 * beatSeconds;
+const { beatSeconds, segments, dropBeat } = grid.music;
+const EDIT_BEATS = segments.reduce((sum, [from, to]) => sum + (to - from), 0);
 
-const toFrame = (seconds: number) => Math.round(seconds * FPS);
+/** Frame of edit beat n. */
+export const beat = (n: number) => Math.round(n * beatSeconds * FPS);
 
-/** Frame of beat n, counted from the drop (negative before it). */
-export const beat = (n: number) => toFrame(DROP_SECONDS + n * beatSeconds);
+/** Edit beat where the music drops back in after the breakdown. */
+export const DROP = dropBeat;
 
-/** Frame of beat k of the snare section. */
-export const snare = (k: number) => toFrame(SNARES_SECONDS + k * beatSeconds);
+/** Frame where the music is cut and the logo comes in. */
+export const END = beat(EDIT_BEATS);
 
-/** Frame where the music is cut to black. */
-export const END = toFrame(endInTrack - startInTrack);
+export const DURATION_IN_FRAMES = END + Math.round(grid.logoSeconds * FPS);

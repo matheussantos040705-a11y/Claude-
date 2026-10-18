@@ -1,15 +1,24 @@
 {
   "fps": 30,
-  "durationSeconds": 56.5,
+  "logoSeconds": 3.4,
   "music": {
-    "file": "Hitman.mp3",
-    "title": "Hitman",
-    "author": "Kevin MacLeod",
-    "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3",
+    "file": "chess-type-phonk-beat.mp3",
+    "title": "Chess Type Phonk Beat",
+    "author": "K0i, Jesus Mus1c & Joyful",
+    "url": "https://archive.org/download/project-03-30-1-hd-720p-medium-fr-30-d-minor-bpm-140/Project_03-30%281%29_HD%20720p_MEDIUM_FR30_D%E2%99%AD_minor__bpm_140.mp3",
     "license": "CC BY 4.0",
-    "startInTrack": 28.1,
-    "endInTrack": 79.56,
-    "beatSeconds": 0.804,
-    "dropInTrack": 51.415
+    "beatSeconds": 0.42683,
+    "firstBeatInTrack": 0.089,
+    "segments": [
+      [
+        16,
+        48
+      ],
+      [
+        72,
+        112
+      ]
+    ],
+    "dropBeat": 40
   }
 }

@@ -4,7 +4,7 @@ placed on the beat grid in src/edit/beat-grid.json.
     python3 scripts/mix-audio.py
 
 Needs numpy and ffmpeg. Sources are downloaded once into .audio-cache/:
-the music from incompetech.com (CC BY 4.0) and the effects from public-domain
+the music (CC BY 4.0) and the effects from public-domain
 (CC0) sound libraries on archive.org. Writes public/inferno-audio.mp3.
 """
 
@@ -21,7 +21,8 @@ CACHE = os.path.join(ROOT, ".audio-cache")
 GRID = json.load(open(os.path.join(ROOT, "src", "edit", "beat-grid.json")))
 MUSIC = GRID["music"]
 SR = 48000
-DURATION = GRID["durationSeconds"]
+BEAT_SECONDS = GRID["music"]["beatSeconds"]
+DURATION = sum(to - frm for frm, to in GRID["music"]["segments"]) * BEAT_SECONDS + GRID["logoSeconds"]
 N = int(DURATION * SR)
 
 # name -> (archive.org item, file path inside the item)
@@ -160,100 +161,73 @@ def sfx(name, at, start=0.0, length=None, gain=0.0, reverb=0.0, rate=1.0, lp=Non
 
 # ------------------------------------------------------------------ timing ---
 
-MS = MUSIC["startInTrack"]
 BEAT = MUSIC["beatSeconds"]
-DROP = MUSIC["dropInTrack"] - MS  # edit seconds
-END = MUSIC["endInTrack"] - MS
+FIRST = MUSIC["firstBeatInTrack"]
+EDIT_BEATS = sum(to - frm for frm, to in MUSIC["segments"])
+END = EDIT_BEATS * BEAT  # the music is cut here and the logo comes in
+DROP = MUSIC["dropBeat"]
 
 
 def beat(n):
-    """Edit time of beat n, counted from the drop (negative before it)."""
-    return DROP + n * BEAT
+    """Edit time, in seconds, of edit beat n."""
+    return n * BEAT
 
-
-SNARES = DROP + 12.5 * BEAT  # second, heavier half of the drop
 
 # ------------------------------------------------------------------ music ---
 
-music_path = fetch(MUSIC["url"], os.path.join(CACHE, MUSIC["file"]))
-music = decode(music_path)[int(MS * SR) : int(MUSIC["endInTrack"] * SR)]
-music = fade(music, 0.4, 0.015)
-place(0, music, gain_db=0)
-# Let the last hit ring out into the cavern after the hard cut.
-place(END - 0.6, fade(music[-int(0.6 * SR):], 0.2, 0.01), gain_db=-6, reverb=1.0)
+# Splice the pieces of the track back to back. Each splice sits a hair before
+# the beat, so the transient that lands on it stays intact.
+track = decode(fetch(MUSIC["url"], os.path.join(CACHE, MUSIC["file"])))
+pre = 0.015
+at = 0.0
+for i, (frm, to) in enumerate(MUSIC["segments"]):
+    start = FIRST + frm * BEAT - (pre if i else 0)
+    piece = track[int(start * SR) : int((FIRST + to * BEAT - pre) * SR)]
+    place(at - (pre if i else 0), fade(piece, 0.01 if i else 0.005, 0.01))
+    at += (to - frm) * BEAT
 
-# ------------------------------------------------------- intro: the gate ---
+# ------------------------------------------------------------ the details ---
 
-# Darkness: chains dragging across stone, a storm gathering below.
-sfx("ominous-storm", 0.0, gain=-10, lp=500, fade_in=2.5, fade_out=0.3,
-    envelope=[(0, 1), (beat(-4) - 0.0, 1), (beat(-4) + 0.4, 0.35), (DROP, 0.35)])
-sfx("chains-drag", 0.15, 0.0, 9.5, gain=-3, reverb=0.35)
-sfx("man-whispers", 0.6, 0.0, 11.0, gain=-17, reverb=0.6, position=-0.45, lp=6000)
+sfx("chains-drag", 0.0, 0.0, 2 * BEAT * 4, gain=-15, reverb=0.3, fade_out=0.6)
+sfx("chains-drop", 0.0, 0.15, 0.9, gain=-9, reverb=0.3)
+sfx("man-groaning", beat(6), 0.0, 3.0, gain=-15, reverb=0.5, rate=0.9, lp=3000)
+sfx("howling-screaming", beat(14), 0.0, 3.0, gain=-19, reverb=0.6, lp=3500, position=-0.3)
+sfx("panic-distance", beat(24), 2.0, 3.5, gain=-21, reverb=0.75, lp=3000, fade_in=0.4, fade_out=0.8)
+sfx("whoosh-low", beat(26), 0.0, 2.0, gain=-15, rate=0.8, lp=1200)
 
-# Selva oscura: a single moan far away.
-sfx("man-moans", 3.2, 2.7, 5.4, gain=-12, reverb=0.65, lp=2800, position=0.35)
+# ----------------------------------------------- the breakdown: in the fog ---
 
-# Acheron: the crowd of the damned at the shore, chains shifting.
-sfx("zombies-moaning", beat(-20) + 0.2, gain=-8, reverb=0.7, rate=0.82, lp=2400, fade_in=1.2, fade_out=1.5)
-sfx("chains-rattle", beat(-19), 10.0, 6.0, gain=-14, reverb=0.45, position=-0.3, fade_in=0.8, fade_out=1.0)
-sfx("man-sobs", beat(-16), 4.4, 5.5, gain=-15, reverb=0.55, position=-0.4, lp=3500)
+sfx("chains-drag", beat(32), 7.25, 3.4, gain=-5, reverb=0.4, fade_in=0.1, fade_out=0.4)
+sfx("man-moans", beat(32) + 0.3, 2.7, 3.2, gain=-9, reverb=0.65, lp=3000, position=0.3)
+sfx("zombies-moaning", beat(33), 1.0, 3.0, gain=-12, reverb=0.7, rate=0.82, lp=2400, fade_in=0.5, fade_out=0.6)
+sfx("man-whispers", beat(32), 0.0, 3.4, gain=-17, reverb=0.6, position=-0.45)
+sfx("heartbeat", beat(36), 0.0, 1.7, gain=-6, lp=900, fade_out=0.3)
+sfx("impact-sweeteners", beat(39.5), 5.75, 0.8, gain=-7, reverb=0.4)
+sfx("whoosh-huge", beat(DROP) - 1.4, reverse=True, gain=-7, fade_in=0.2, fade_out=0.01)
 
-# The abyss: panting in pain, groaning, a heartbeat.
-sfx("painful-panting", beat(-14) + 0.3, 50.0, 7.0, gain=-11, reverb=0.3, position=0.25, fade_in=0.6, fade_out=1.0)
-sfx("man-groaning", beat(-13), 0.0, 8.0, gain=-14, reverb=0.55, rate=0.9, lp=3000, position=-0.2, fade_in=0.4, fade_out=1.2)
-sfx("heartbeat", beat(-8), 0.0, 4.0, gain=-5, lp=900, fade_out=0.6)
+# ---------------------------------------------------------------- the drop ---
 
-# The damned rise toward the gate: a wall of screams, swelling.
-sfx("demons-scream", beat(-8), 5.0, 6.4, gain=-12, reverb=0.7, rate=0.7, lp=1800, fade_in=2.5, fade_out=0.05,
-    envelope=[(0, 0.3), (3.0, 1.0), (6.0, 1.0)])
+sfx("explosion-rumble", beat(DROP), 0.0, 4.0, gain=-5, lp=260, fade_out=1.6)
+sfx("chains-drop", beat(DROP), 0.15, 1.0, gain=-5, reverb=0.35)
+sfx("woman-terror", beat(DROP) + 0.08, 0.0, 3.0, gain=-16, reverb=0.75, rate=0.9, lp=4000, position=0.3)
+sfx("howling-screaming", beat(43), 0.0, 1.4, gain=-15, reverb=0.4)
+# Marsyas, in red: the scream.
+sfx("man-fall-scream", beat(54), 0.0, 1.7, gain=-7, reverb=0.5, rate=0.85, lp=5000, fade_out=0.25)
+sfx("impact-sweeteners", beat(56), 8.25, 0.7, gain=-6, reverb=0.3)
+sfx("chains-drop", beat(56), 0.15, 0.6, gain=-8, reverb=0.3)
+sfx("explosion-rumble", beat(57), 0.0, 2.0, gain=-9, lp=240, fade_out=1.0)
+sfx("man-sobs", beat(60), 4.4, 1.7, gain=-15, reverb=0.6, position=0.25)
+# Lucifer roars, his wings beat.
+sfx("demons-scream", beat(68), 30.0, END - beat(68), gain=-7, reverb=0.6, rate=0.5, lp=1100, fade_in=0.3, fade_out=0.03)
+for k in (0.3, 1.2):
+    sfx("whoosh-low", beat(68) + k, 0.0, 1.4, gain=-10, rate=0.7, lp=900)
 
-# Subliminal flashes in the flicker sequence.
-for n, start in zip((-7, -6, -5), (5.75, 8.25, 12.0)):
-    sfx("impact-sweeteners", beat(n), start, 1.2, gain=-8, reverb=0.4)
+# --------------------------------------------------------------- the logo ---
 
-# LASCIATE / OGNE / SPERANZA: the gate slams once per word.
-for n in (-3, -2, -1):
-    sfx("metal-door", beat(n), 0.35, 1.6, gain=-1, reverb=0.55, lp=6000)
-    sfx("chains-drop", beat(n), 0.15, 0.9, gain=-6, reverb=0.3)
-sfx("whoosh-huge", DROP - 2.3, reverse=True, gain=-6, fade_in=0.3, fade_out=0.01)
-
-# ----------------------------------------------------------- the drop ---
-
-sfx("explosion-rumble", DROP, 0.0, 5.0, gain=-3, lp=260, fade_out=2.0)
-sfx("chains-drop", DROP, 0.15, 1.2, gain=-3, reverb=0.35)
-sfx("woman-terror", DROP + 0.1, 0.0, 4.5, gain=-12, reverb=0.75, rate=0.9, lp=4000, position=0.3)
-sfx("fire-rumble", DROP, 3.0, END - DROP, gain=-17, lp=1400, fade_in=1.0, fade_out=0.05)
-
-# Second circle, the storm of the lustful.
-sfx("whoosh-huge", beat(4), gain=-9, reverb=0.3)
-sfx("howling-screaming", beat(4), 0.0, 5.5, gain=-14, reverb=0.65, lp=3500, position=-0.35)
-# The Furies shriek from the tower.
-sfx("demons-scream", beat(8), 20.0, 2.6, gain=-14, reverb=0.5, position=0.35)
-sfx("fire-crackle", beat(10), 0.0, 2.2, gain=-12)
-for n in (2, 6):
-    sfx("chains-drop", beat(n), 0.15, 0.9, gain=-9, reverb=0.25)
-
-# Heavier half: screams buried in the music, chains on the accents.
-sfx("man-fall-scream", SNARES + BEAT, gain=-12, reverb=0.45, rate=0.95)
-for k in (4, 8, 12):
-    sfx("chains-drop", SNARES + k * BEAT, 0.15, 0.8, gain=-10, reverb=0.25)
-sfx("dying-man", SNARES + 9 * BEAT, 6.5, 2.4, gain=-12, reverb=0.4, position=-0.2)
-sfx("panic-distance", SNARES + 11 * BEAT, 2.0, 5.5, gain=-17, reverb=0.8, lp=3000, fade_in=0.8, fade_out=1.0)
-sfx("man-sobs", SNARES + 14 * BEAT, 4.4, 3.2, gain=-12, reverb=0.6, position=0.25)
-
-# Lucifer: the emperor of the woeful realm roars, his wings beat.
-LUCIFER = SNARES + 18 * BEAT
-sfx("demons-scream", LUCIFER, 30.0, END - LUCIFER, gain=-6, reverb=0.6, rate=0.5, lp=1100, fade_in=0.4, fade_out=0.05)
-for k in (0.4, 2.0):
-    sfx("whoosh-low", LUCIFER + k, 0.0, 2.2, gain=-8, rate=0.7, lp=900)
-
-# ---------------------------------------------------------------- ending ---
-
-sfx("metal-door", END, 0.35, 1.8, gain=0, reverb=0.9)
+sfx("metal-door", END, 0.35, 1.8, gain=-1, reverb=0.9)
 sfx("explosion-rumble", END, 0.0, 3.0, gain=-4, lp=220, fade_out=1.5)
-sfx("chains-drop", END, 0.15, 1.0, gain=-5, reverb=0.6)
-sfx("chains-drag", END + 1.1, 7.25, 2.6, gain=-9, reverb=0.55, fade_in=0.2, fade_out=0.8)
-sfx("man-moans", END + 2.9, 9.4, 2.4, gain=-20, reverb=0.85, lp=2200, position=-0.3)
+sfx("chains-drop", END, 0.15, 1.0, gain=-6, reverb=0.6)
+sfx("chains-drag", END + 1.3, 7.25, 1.9, gain=-13, reverb=0.55, fade_in=0.2, fade_out=0.7)
 
 # ---------------------------------------------------------------- reverb ---
 
@@ -282,8 +256,11 @@ mix = dry + wet
 
 mix = highpass(mix, 28)
 target = 10 ** (-1.0 / 20)
-drive = 1.6
-mix = np.tanh(mix * drive / (np.abs(mix).max() + 1e-9)) * target / np.tanh(drive)
+drive = 1.15
+# Gentle saturation, then a fixed level that lands near -13.5 LUFS, like
+# the reference edit.
+mix = np.tanh(mix * drive / (np.abs(mix).max() + 1e-9)) / np.tanh(drive)
+mix *= target * 10 ** (-1.8 / 20)
 
 out = os.path.join(ROOT, "public", "inferno-audio.mp3")
 pcm = (np.clip(mix, -1, 1) * 32767).astype("<i2").tobytes()
