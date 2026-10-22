@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { Audio } from "@remotion/media";
-import { Captions, Wipe } from "./parts";
+import { Wipe } from "./parts";
 import {
   SceneAlzira,
   SceneBertha,
@@ -36,9 +36,6 @@ export const VotoFeminino: React.FC = () => {
           <Scene />
         </Sequence>
       ))}
-      <Sequence durationInFrames={Math.round(scene.poster * fps)}>
-        <Captions />
-      </Sequence>
       {order.slice(1).map(([from]) => (
         <Wipe key={from} at={Math.round(from * fps)} />
       ))}

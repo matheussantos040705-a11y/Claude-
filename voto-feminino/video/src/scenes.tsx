@@ -318,18 +318,7 @@ export const SceneVoice: React.FC = () => {
   );
 };
 
-// 9. O pôster e os créditos de tudo que foi usado.
-const credits = [
-  ["ROTEIRO", "Claude + checagem de fatos"],
-  ["NARRAÇÃO", "VoiceStudio · OmniVoice (IA local)"],
-  ["REVISÃO DA FALA", "Whisper · tempo de cada palavra"],
-  ["TRILHA", "marcha original sintetizada em código"],
-  ["MIXAGEM", "ducking + master −14 LUFS · FFmpeg"],
-  ["PÔSTER", "Canva IA"],
-  ["ANIMAÇÃO", "Remotion · rough.js · spring"],
-  ["TIPOGRAFIA", "fontes livres do canvas-design"],
-];
-
+// 9. O pôster, sozinho.
 export const ScenePoster: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -343,28 +332,16 @@ export const ScenePoster: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          left: 150,
-          top: 130,
-          width: 780,
-          height: 1040,
+          left: 105,
+          top: 360,
+          width: 870,
+          height: 1160,
           transform: `scale(${scale}) rotate(${rot}deg)`,
           boxShadow: `22px 22px 0 ${color.ink}`,
           border: `14px solid ${color.paper}`,
         }}
       >
         <Img src={staticFile("img/poster.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      </div>
-      <div style={{ position: "absolute", left: 60, right: 60, top: 1290, backgroundColor: color.ink, padding: "26px 34px" }}>
-        <div style={{ ...display(54, color.yellow), letterSpacing: 4, marginBottom: 14 }}>FEITO COM</div>
-        {credits.map(([k, v], i) => {
-          const o = interpolate(frame, [20 + i * 7, 28 + i * 7], [0, 1], clamp);
-          return (
-            <div key={k} style={{ display: "flex", gap: 18, opacity: o, fontFamily: font.mono, fontSize: 25, lineHeight: 1.62, color: color.paper }}>
-              <span style={{ color: color.red, width: 260, flexShrink: 0 }}>{k}</span>
-              <span>{v}</span>
-            </div>
-          );
-        })}
       </div>
     </AbsoluteFill>
   );

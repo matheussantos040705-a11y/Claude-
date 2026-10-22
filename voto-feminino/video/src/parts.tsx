@@ -8,7 +8,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import captions from "./captions.json";
 import { color, font } from "./theme";
 
 const gen = rough.generator();
@@ -172,59 +171,5 @@ export const Wipe: React.FC<{ at: number }> = ({ at }) => {
       <div style={{ position: "absolute", left: x, top: -400, width: 520, height: 2800, backgroundColor: color.red, transform: "rotate(18deg)" }} />
       <div style={{ position: "absolute", left: x + 520, top: -400, width: 180, height: 2800, backgroundColor: color.ink, transform: "rotate(18deg)" }} />
     </AbsoluteFill>
-  );
-};
-
-type Word = { w: string; s: number; e: number };
-type Line = { start: number; words: Word[] };
-
-// Legenda karaokê com o tempo de cada palavra medido pelo Whisper.
-export const Captions: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const t = frame / fps;
-  const lines = captions as Line[];
-  const line = lines.find((l, i) => {
-    const end = l.words[l.words.length - 1].e + 0.35;
-    const next = lines[i + 1]?.start ?? Infinity;
-    return t >= l.start - 0.05 && t < Math.min(end, next);
-  });
-  if (!line) return null;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 70,
-        right: 70,
-        bottom: 250,
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "10px 14px",
-        fontFamily: font.sans,
-        fontWeight: 700,
-        fontSize: 50,
-        lineHeight: 1.15,
-        textTransform: "uppercase",
-      }}
-    >
-      {line.words.map((w, i) => {
-        const on = t >= w.s && t < w.e + 0.08;
-        const said = t >= w.s;
-        return (
-          <span
-            key={i}
-            style={{
-              padding: "4px 12px",
-              backgroundColor: on ? color.red : color.ink,
-              color: said ? color.paper : "rgba(239,227,200,0.45)",
-              transform: on ? "translateY(-4px)" : "none",
-            }}
-          >
-            {w.w}
-          </span>
-        );
-      })}
-    </div>
   );
 };
