@@ -1,0 +1,9 @@
+/home/user/Claude-/faisca/video/3d/lata.py:35: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m = bpy.data.materials.new(name); m.use_nodes = True
+/home/user/Claude-/faisca/video/3d/lata.py:148: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w = bpy.data.worlds.new("Mundo"); sc.world = w; w.use_nodes = True
+00:46.567  render           | Saved: '/home/user/Claude-/faisca/video/3d/packshot.png'
+RENDER /home/user/Claude-/faisca/video/3d/packshot.png
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:34:58)
+
+Blender quit
