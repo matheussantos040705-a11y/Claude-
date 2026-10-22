@@ -1,0 +1,24 @@
+take11/f1.wav|24 de fevereiro de 1932.
+take11/f2.wav|Nesse dia, o voto feminino virou lei no Brasil.
+take11/f3.wav|Mas essa conquista não caiu do céu.
+take11/f4.wav|Em 1927, no Rio Grande do Norte, Selina Guimarães-Viana se listou e virou a primeira eleitora do país.
+take11/f5.wav|Pouco depois, Alzira Suriano foi eleita a primeira plefeita do Brasil.
+take11/f6.wav|Berta Lutz e milhares de mulheres organizadas pressionaram até a lei mudar.
+take11/f7.wav|Hoje, as mulheres são mais da metade do eleitorado, 52%.
+take11/f8.wav|Esse direito foi conquistado. Use seu voto à sua voz.
+take23/f1.wav|24 de fevereiro de 1932.
+take23/f2.wav|Nesse dia, o voto feminino virou lei no Brasil.
+take23/f3.wav|mas essa conquista não caiu do céu.
+take23/f4.wav|Em 1927, no Rio Grande do Norte, Selina Guimarães Viana se alestou e virou a primeira eleitura do país.
+take23/f5.wav|Pouco depois, Osílio Soriano foi eleita a primeira prefeita do Brasil.
+take23/f6.wav|Bertha Lutz e milhares de mulheres organizadas pressionaram até a lei mudar.
+take23/f7.wav|Hoje, as mulheres são mais da metade do eleitorado, 52%.
+take23/f8.wav|Esse direito foi conquistado. Use. Seu voto é sua voz.
+take37/f1.wav|24 de fevereiro de 1932.
+take37/f2.wav|Nesse dia, o voto feminino virou lei no Brasil.
+take37/f3.wav|mas essa conquista não caiu do céu.
+take37/f4.wav|Em 1927, no Rio Grande do Norte, Selina Guimarães Viana se elistou e virou a primeira eleitora do país.
+take37/f5.wav|Pouco depois, Alzira Suriano foi eleita a primeira prefeita do Brasil.
+take37/f6.wav|Bertha Lutz e milhares de mulheres organizadas pressionaram até a lei mudar.
+take37/f7.wav|Hoje, as mulheres são mais da metade do eleitorado, 52%.
+take37/f8.wav|Esse direito foi conquistado. Use. Seu voto é sua voz.
