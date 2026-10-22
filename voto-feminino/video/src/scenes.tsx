@@ -320,14 +320,14 @@ export const SceneVoice: React.FC = () => {
 
 // 9. O pôster e os créditos de tudo que foi usado.
 const credits = [
-  ["ROTEIRO", "studio-script + checagem de fatos"],
+  ["ROTEIRO", "Claude + checagem de fatos"],
   ["NARRAÇÃO", "VoiceStudio · OmniVoice (IA local)"],
   ["REVISÃO DA FALA", "Whisper · tempo de cada palavra"],
   ["TRILHA", "marcha original sintetizada em código"],
   ["MIXAGEM", "ducking + master −14 LUFS · FFmpeg"],
   ["PÔSTER", "Canva IA"],
   ["ANIMAÇÃO", "Remotion · rough.js · spring"],
-  ["DESIGN", "canvas-design · color-system · typography-scale"],
+  ["TIPOGRAFIA", "fontes livres do canvas-design"],
 ];
 
 export const ScenePoster: React.FC = () => {
