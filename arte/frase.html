@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>A Ausência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07060a;
+    --ink: #efe6d8;
+    --muted: #a99c8a;
+    --ember: #ff8a3d;
+    --ember-deep: #c2410c;
+    --smoke: #5d5868;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1350px; background: var(--bg); }
+  .card {
+    position: relative; width: 1080px; height: 1350px; overflow: hidden;
+    background:
+      radial-gradient(ellipse 70% 38% at 50% 100%, rgba(255,122,40,.38), rgba(194,65,12,.12) 45%, transparent 75%),
+      radial-gradient(ellipse 60% 50% at 50% 30%, #13101a, transparent 80%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Cormorant Garamond", Georgia, serif;
+  }
+  /* grain */
+  .card::after {
+    content: ""; position: absolute; inset: 0; opacity: .09; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .frame {
+    position: absolute; inset: 48px; border: 1px solid rgba(239,230,216,.14);
+  }
+  .candle { position: absolute; left: 50%; top: 150px; transform: translateX(-50%); }
+  .text {
+    position: absolute; left: 110px; right: 110px; top: 470px; text-align: center;
+  }
+  .q1 {
+    font-size: 70px; line-height: 1.12; font-weight: 500; letter-spacing: -.5px;
+  }
+  .q1 em { font-style: italic; color: var(--muted); }
+  .q1 .fire {
+    font-style: italic;
+    background: linear-gradient(180deg, #ffd08a, var(--ember) 55%, var(--ember-deep));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 40px rgba(255,138,61,.25);
+  }
+  .rule {
+    width: 90px; height: 1px; margin: 54px auto 46px;
+    background: linear-gradient(90deg, transparent, var(--ember), transparent);
+  }
+  .q2 {
+    font-size: 40px; line-height: 1.35; font-style: italic; color: #d6cbbb;
+  }
+  .author {
+    margin-top: 58px; font-family: "Cinzel", serif; font-size: 22px;
+    letter-spacing: 7px; color: var(--muted); text-transform: uppercase;
+  }
+  .fire-svg { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="frame"></div>
+
+  <!-- vela apagada com fumaça -->
+  <svg class="candle" width="160" height="290" viewBox="0 0 160 290" aria-hidden="true">
+    <defs>
+      <linearGradient id="wax" x1="0" x2="1">
+        <stop offset="0" stop-color="#3a3440"/><stop offset=".5" stop-color="#6b6272"/><stop offset="1" stop-color="#2c2731"/>
+      </linearGradient>
+      <linearGradient id="smoke" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#8d8698" stop-opacity=".75"/><stop offset="1" stop-color="#8d8698" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M80 168 C 70 145, 96 132, 84 110 S 62 78, 80 56 S 100 24, 86 2" fill="none" stroke="url(#smoke)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M82 168 C 92 150, 70 138, 82 118 S 100 92, 88 70" fill="none" stroke="url(#smoke)" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+    <line x1="80" y1="170" x2="80" y2="186" stroke="#1b1a1e" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="80" cy="170" r="2.4" fill="#ff8a3d" opacity=".9"/>
+    <rect x="58" y="186" width="44" height="104" rx="4" fill="url(#wax)"/>
+    <path d="M58 192 Q 66 204 70 192 Q 76 214 84 194 Q 92 206 102 192 L102 186 L58 186 Z" fill="#7a7181"/>
+  </svg>
+
+  <div class="text">
+    <p class="q1">A ausência <em>apaga</em> as fracas paixões e <span class="fire">acende</span> as grandes.</p>
+    <div class="rule"></div>
+    <p class="q2">Assim como o vento apaga a vela<br>e alimenta a fogueira.</p>
+    <p class="author">La Rochefoucauld</p>
+  </div>
+
+  <!-- fogueira -->
+  <svg class="fire-svg" width="300" height="230" viewBox="0 0 300 230" overflow="visible" aria-hidden="true">
+    <defs>
+      <radialGradient id="glow" cx=".5" cy=".85" r=".6">
+        <stop offset="0" stop-color="#ffb35c" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a28" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="f1" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#c2410c"/><stop offset=".55" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ffd08a"/>
+      </linearGradient>
+      <linearGradient id="f2" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#fff1c9"/>
+      </linearGradient>
+    </defs>
+    <path d="M150 150 C 96 150, 92 104, 118 78 C 116 102, 132 104, 132 88 C 132 62, 150 44, 160 14 C 168 46, 196 66, 194 104 C 202 96, 204 86, 202 74 C 222 98, 214 150, 150 150 Z" fill="url(#f1)"/>
+    <path d="M150 150 C 124 150, 120 124, 136 106 C 138 120, 146 120, 146 110 C 148 92, 156 82, 160 66 C 172 92, 184 104, 178 128 C 176 144, 166 150, 150 150 Z" fill="url(#f2)"/>
+    <rect x="70" y="146" width="160" height="14" rx="7" fill="#3b2418" transform="rotate(-9 150 153)"/>
+    <rect x="70" y="146" width="160" height="14" rx="7" fill="#4a2d1d" transform="rotate(9 150 153)"/>
+  </svg>
+</div>
+</body>
+</html>
