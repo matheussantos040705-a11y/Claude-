@@ -1,0 +1,12 @@
+{
+  "name": "sprite-animation-skill",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "examples:render": "node scripts/render-examples.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.63.0"
+  }
+}
