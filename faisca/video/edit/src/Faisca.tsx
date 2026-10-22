@@ -184,7 +184,7 @@ const CenaAbre: React.FC = () => {
 // 2-5 s: lata girando no estúdio, gelo caindo em câmera lenta.
 const CenaGiro: React.FC = () => {
   const f = useCurrentFrame();
-  const push = interpolate(f, [0, 90], [1.0, 1.07], clamp);
+  const push = interpolate(f, [0, 90], [1.0, 1.04], clamp);
   return (
     <AbsoluteFill style={{ background: C.deep }}>
       <AbsoluteFill style={{ transform: `scale(${push})` }}>
@@ -207,7 +207,7 @@ const CenaTipo: React.FC = () => {
       <AbsoluteFill style={{ transform: `translate(${sx}px, ${sy}px)` }}>
         <Slam text="UM GOLE." at={0} top={560} size={250} color={C.white} />
         <Slam text="UMA" at={hit2} top={830} size={250} color={C.yellow} />
-        <Slam text="FAÍSCA." at={hit2 + 3} top={1050} size={330} color={C.yellow} />
+        <Slam text="FAÍSCA." at={hit2 + 3} top={1090} size={330} color={C.yellow} />
         <svg width={1080} height={1920} style={{ position: "absolute", opacity: f >= hit2 ? charge : 0 }}>
           <Bolt x1={-20} y1={980} x2={170} y2={1200} seed="t1" />
           <Bolt x1={1100} y1={900} x2={900} y2={1180} seed="t2" />
