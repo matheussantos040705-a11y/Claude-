@@ -3,12 +3,14 @@ import rough from "roughjs";
 import {
   AbsoluteFill,
   Easing,
+  Img,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { color, font } from "./theme";
+import { color } from "./theme";
 
 const gen = rough.generator();
 
@@ -128,35 +130,52 @@ export const Stamp: React.FC<{
   );
 };
 
-// Etiqueta que diz qual técnica está em cena.
-export const SkillChip: React.FC<{ label: string; dark?: boolean }> = ({ label, dark }) => {
+// Retrato que se desenha: primeiro os contornos, varridos na diagonal como a
+// mão do desenhista, depois o sombreamento; tudo com um avanço lento de câmera.
+export const Portrait: React.FC<{ name: string; left: number; top: number; width: number; drawFrom: number; drawTo: number }> = ({
+  name,
+  left,
+  top,
+  width,
+  drawFrom,
+  drawTo,
+}) => {
   const frame = useCurrentFrame();
-  const x = interpolate(frame, [4, 16], [-420, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.out(Easing.cubic),
+  const mid = drawFrom + (drawTo - drawFrom) * 0.55;
+  const lineP = interpolate(frame, [drawFrom, mid], [-20, 120], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) });
+  const shadeP = interpolate(frame, [drawFrom + (drawTo - drawFrom) * 0.3, drawTo], [-20, 120], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) });
+  const zoom = interpolate(frame, [0, 300], [1.0, 1.07]);
+  const sweep = (p: number) => `linear-gradient(160deg, #000 ${p - 12}%, rgba(0,0,0,0.35) ${p - 4}%, transparent ${p}%)`;
+  const h = width * 1.25;
+  const layer = (p: number): React.CSSProperties => ({
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    WebkitMaskImage: sweep(p),
+    maskImage: sweep(p),
   });
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 92,
-        left: 0,
-        transform: `translateX(${x}px)`,
-        display: "flex",
-        alignItems: "center",
-        gap: 14,
-        padding: "14px 26px 14px 56px",
-        backgroundColor: dark ? color.paper : color.ink,
-        color: dark ? color.ink : color.paper,
-        fontFamily: font.mono,
-        fontSize: 26,
-        letterSpacing: 2,
-      }}
-    >
-      <span style={{ width: 14, height: 14, backgroundColor: color.red, display: "inline-block" }} />
-      {label}
+    <div style={{ position: "absolute", left, top, width, height: h, overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, transform: `scale(${zoom})`, transformOrigin: "50% 40%" }}>
+        <Img src={staticFile(`retratos/${name}-sombra.png`)} style={layer(shadeP)} />
+        <Img src={staticFile(`retratos/${name}-linhas.png`)} style={layer(lineP)} />
+      </div>
     </div>
+  );
+};
+
+// Vinheta e luz quente de projeção, por cima de tudo.
+export const Vignette: React.FC = () => {
+  const frame = useCurrentFrame();
+  const flicker = 0.9 + 0.1 * Math.sin(frame * 0.7) * Math.sin(frame * 0.23);
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        background: `radial-gradient(ellipse 75% 60% at 50% 45%, rgba(255,214,150,${0.04 * flicker}) 0%, transparent 62%, rgba(10,6,4,0.28) 100%)`,
+      }}
+    />
   );
 };
 

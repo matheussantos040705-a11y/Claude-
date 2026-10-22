@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { Audio } from "@remotion/media";
-import { Wipe } from "./parts";
+import { Vignette, Wipe } from "./parts";
 import {
   SceneAlzira,
   SceneBertha,
@@ -39,6 +39,7 @@ export const VotoFeminino: React.FC = () => {
       {order.slice(1).map(([from]) => (
         <Wipe key={from} at={Math.round(from * fps)} />
       ))}
+      <Vignette />
       <Audio src={staticFile("audio/mix.wav")} />
     </AbsoluteFill>
   );

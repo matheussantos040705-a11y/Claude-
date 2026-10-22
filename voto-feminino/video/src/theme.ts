@@ -29,13 +29,13 @@ loadFont({ family: font.mono, url: staticFile("fonts/DMMono-Regular.ttf") });
 // Início de cada cena, em segundos (casados com a narração).
 export const scene = {
   date: 0,
-  law: 5.0,
-  sky: 8.0,
-  celina: 10.6,
-  alzira: 19.2,
-  bertha: 24.2,
+  law: 5.2,
+  sky: 8.7,
+  celina: 11.4,
+  alzira: 19.6,
+  bertha: 24.6,
   data: 29.6,
-  voice: 35.2,
-  poster: 39.0,
+  voice: 35.3,
+  poster: 39.9,
   end: 45.0,
 };

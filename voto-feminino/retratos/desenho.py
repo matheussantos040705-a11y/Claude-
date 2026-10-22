@@ -9,6 +9,9 @@ import sys, numpy as np, cv2
 src, name = sys.argv[1], sys.argv[2]
 W, H = 1000, 1250
 img = cv2.imread(src, cv2.IMREAD_GRAYSCALE)
+if len(sys.argv) > 3:                     # recorte opcional x0,y0,x1,y1
+    x0, y0, x1, y1 = map(int, sys.argv[3].split(","))
+    img = img[y0:y1, x0:x1]
 # enquadra o rosto/busto: recorte central na proporção 4:5
 h, w = img.shape
 if w / h > W / H:
