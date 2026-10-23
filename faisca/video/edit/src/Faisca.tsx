@@ -208,7 +208,8 @@ const CenaSplash: React.FC = () => {
         <Frames dir="splash" count={SHOTS.splash.len} />
       </AbsoluteFill>
       <Slam text="UM GOLE." at={4} out={36} top={190} size={210} color={C.white} />
-      <Slam text="UMA FAÍSCA!" at={s(1.35)} out={84} top={170} size={225} color={C.yellow} glow />
+      <Slam text="UMA" at={s(1.35)} out={84} top={130} size={200} color={C.yellow} glow />
+      <Slam text="FAÍSCA!" at={s(1.35) + 3} out={84} top={300} size={230} color={C.yellow} glow />
       <svg width={1080} height={1920} style={{ position: "absolute", opacity: interpolate(f, [s(1.35), s(1.35) + 2, s(1.35) + 16], [0, 1, 0], clamp) }}>
         <Bolt x1={140} y1={420} x2={-20} y2={700} seed="s1" />
         <Bolt x1={940} y1={400} x2={1100} y2={640} seed="s2" />
@@ -262,8 +263,8 @@ const CenaHero: React.FC = () => {
         MARACUJÁ COM GENGIBRE
       </div>
       <div style={{
-        position: "absolute", left: 540 - 200, top: 1420, width: 400, height: 400,
-        transform: `scale(${selo}) rotate(${interpolate(selo, [0, 1], [-50, -9])}deg)`,
+        position: "absolute", left: 640, top: 1180, width: 400, height: 400,
+        transform: `scale(${selo * 0.85}) rotate(${interpolate(selo, [0, 1], [-50, 12])}deg)`,
       }}>
         <svg width={400} height={400} viewBox="-200 -200 400 400" style={{ position: "absolute" }}>
           <polygon fill={C.yellow} style={{ filter: "drop-shadow(0 16px 36px rgba(0,0,0,0.6))" }}
