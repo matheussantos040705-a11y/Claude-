@@ -230,9 +230,9 @@ const CenaFruta: React.FC = () => {
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(8,0,16,0.55) 0%, transparent 30%, transparent 70%, rgba(8,0,16,0.6) 100%)" }} />
       <Reveal text="MARACUJÁ" at={4} out={74} top={150} size={150} color={C.white} />
       <Reveal text="DE VERDADE" at={9} out={74} top={290} size={150} color={C.white} />
-      <Reveal text="+ UM CHOQUE" at={36} out={74} top={1500} size={120} color={C.yellow} />
-      <Reveal text="DE GENGIBRE" at={41} out={74} top={1615} size={120} color={C.yellow} />
-      <Sparks at={38} x={760} y={1560} n={24} seed="sp2" />
+      <Reveal text="+ UM CHOQUE" at={50} out={74} top={1500} size={120} color={C.yellow} />
+      <Reveal text="DE GENGIBRE" at={55} out={74} top={1615} size={120} color={C.yellow} />
+      <Sparks at={53} x={760} y={1560} n={24} seed="sp2" />
     </AbsoluteFill>
   );
 };
@@ -242,7 +242,7 @@ const CenaHero: React.FC = () => {
   const { fps } = useVideoConfig();
   const t0 = SHOTS.hero.len; // quadro em que a lata assenta e congela
   const push = interpolate(f, [t0, END - SHOTS.hero.from], [1.0, 1.05], clamp);
-  const selo = spring({ frame: f - s(1.0), fps, config: { damping: 9, stiffness: 170 } });
+  const selo = spring({ frame: f - 107, fps, config: { damping: 9, stiffness: 170 } });
   const tag = spring({ frame: f - s(1.6), fps, config: { damping: 20 } });
   const logoAt = s(12.4) - SHOTS.hero.from;
   const glow = interpolate(f, [logoAt - 2, logoAt + 2, logoAt + 40], [0, 0.55, 0.12], clamp);
