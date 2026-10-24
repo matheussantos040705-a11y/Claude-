@@ -11,6 +11,8 @@ import {
 } from "remotion";
 import { Paper, Portrait, Rays, RoughShape, Stamp } from "./parts";
 import { color, font, scene } from "./theme";
+import cue from "./cues.json";
+import { InkBurst, LightSweep, SoundRings } from "./fx";
 
 // Converte um instante absoluto da narração em quadro relativo à cena.
 const useAt = (sceneStart: number) => {
@@ -39,13 +41,13 @@ export const SceneDate: React.FC = () => {
     <AbsoluteFill>
       <Rays a={color.ink} b={color.redDark} cy={820} speed={0.12} />
       <AbsoluteFill style={{ transform: `translateY(${drift}px)` }}>
-        <Stamp at={at(0.9)} rotate={-6} style={{ left: 90, top: 330 }}>
+        <Stamp at={at(cue.date24)} rotate={-6} style={{ left: 90, top: 330 }}>
           <div style={{ ...display(300, color.paper) }}>24</div>
         </Stamp>
-        <Stamp at={at(1.86)} rotate={-6} style={{ left: 470, top: 410 }}>
+        <Stamp at={at(cue.dateFev)} rotate={-6} style={{ left: 470, top: 410 }}>
           <div style={{ ...display(170, color.ink), backgroundColor: color.yellow, padding: "6px 22px 0" }}>FEV</div>
         </Stamp>
-        <Stamp at={at(2.58)} rotate={-6} style={{ left: 40, top: 690 }}>
+        <Stamp at={at(cue.date1932)} rotate={-6} style={{ left: 40, top: 690 }}>
           <div style={{ ...display(400, color.red), textShadow: `14px 14px 0 ${color.ink}` }}>1932</div>
         </Stamp>
       </AbsoluteFill>
@@ -57,8 +59,8 @@ export const SceneDate: React.FC = () => {
 export const SceneLaw: React.FC = () => {
   const at = useAt(scene.law);
   const frame = useCurrentFrame();
-  const drop = interpolate(frame, [at(6.32), at(6.82)], [-260, 120], { ...clamp, easing: Easing.in(Easing.quad) });
-  const ballotVisible = frame < at(6.82) + 1;
+  const drop = interpolate(frame, [at(cue.ballotStart), at(cue.ballotLand)], [-260, 120], { ...clamp, easing: Easing.in(Easing.quad) });
+  const ballotVisible = frame < at(cue.ballotLand) + 1;
   return (
     <AbsoluteFill>
       <Paper />
@@ -74,10 +76,10 @@ export const SceneLaw: React.FC = () => {
           </g>
         ) : null}
       </svg>
-      <Stamp at={at(6.66)} rotate={-8} style={{ left: 60, top: 300 }}>
+      <Stamp at={at(cue.lawVoto)} rotate={-8} style={{ left: 60, top: 300 }}>
         <div style={{ ...display(150, color.paper), backgroundColor: color.ink, padding: "14px 26px 4px" }}>VOTO FEMININO</div>
       </Stamp>
-      <Stamp at={at(7.44)} rotate={6} style={{ left: 600, top: 1170 }}>
+      <Stamp at={at(cue.lawLei)} rotate={6} style={{ left: 600, top: 1170 }}>
         <div style={{ ...display(170, color.red), border: `10px solid ${color.red}`, padding: "10px 24px 0" }}>É LEI</div>
       </Stamp>
     </AbsoluteFill>
@@ -100,6 +102,7 @@ const Falling: React.FC<{ at: number; x: number; y: number; children: React.Reac
   const rot = interpolate(s, [0, 1], [-14, 0]);
   return (
     <div style={{ position: "absolute", left: x, top: y, transform: `translateY(${ty}px) rotate(${rot}deg)`, ...display(size, c) }}>
+      <InkBurst at={at + 9} seed={`f${at}`} n={22} c={color.paper} />
       {children}
     </div>
   );
@@ -110,9 +113,9 @@ export const SceneSky: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: color.red }}>
       <div style={{ position: "absolute", left: 80, top: 330, ...display(70, color.ink), letterSpacing: 4 }}>MAS ESSA CONQUISTA</div>
-      <Falling at={at(9.88)} x={80} y={450}>NÃO</Falling>
-      <Falling at={at(10.06)} x={80} y={676} c={color.ink}>CAIU</Falling>
-      <Falling at={at(10.42)} x={80} y={902}>DO CÉU.</Falling>
+      <Falling at={at(cue.skyNao)} x={80} y={450}>NÃO</Falling>
+      <Falling at={at(cue.skyCaiu)} x={80} y={676} c={color.ink}>CAIU</Falling>
+      <Falling at={at(cue.skyCeu)} x={80} y={902}>DO CÉU.</Falling>
     </AbsoluteFill>
   );
 };
@@ -160,10 +163,13 @@ const Badge: React.FC<{ at: number; text: string; top: number }> = ({ at, text, 
 
 const Place: React.FC<{ at: number; text: string; top: number }> = ({ at, text, top }) => {
   const frame = useCurrentFrame();
-  const o = interpolate(frame, [at, at + 8], [0, 1], clamp);
+  if (frame < at) return null;
+  const n = Math.min(text.length, Math.floor((frame - at) * 1.5));
+  const caret = n < text.length || Math.floor(frame / 8) % 2 === 0;
   return (
-    <div style={{ position: "absolute", left: 84, top, opacity: o, fontFamily: font.mono, fontSize: 32, letterSpacing: 4, color: color.ink }}>
-      ◉ {text}
+    <div style={{ position: "absolute", left: 84, top, fontFamily: font.mono, fontSize: 32, letterSpacing: 4, color: color.ink }}>
+      ◉ {text.slice(0, n)}
+      <span style={{ opacity: caret ? 1 : 0 }}>▌</span>
     </div>
   );
 };
@@ -174,10 +180,10 @@ export const SceneCelina: React.FC = () => {
     <AbsoluteFill>
       <Paper />
       <Portrait name="celina" left={90} top={110} width={900} drawFrom={0} drawTo={at(15.6)} />
-      <Year from={1900} to={1927} start={at(11.78)} end={at(13.0)} top={830} />
-      <Place at={at(13.64)} text="MOSSORÓ · RIO GRANDE DO NORTE" top={1300} />
-      <NameCard at={at(14.9)} name="Celina Guimarães Viana" top={1370} />
-      <Badge at={at(17.32)} text="1ª ELEITORA DO BRASIL" top={1610} />
+      <Year from={1900} to={1927} start={at(cue.celinaYearStart)} end={at(cue.celinaYearEnd)} top={830} />
+      <Place at={at(cue.celinaPlace)} text="MOSSORÓ · RIO GRANDE DO NORTE" top={1300} />
+      <NameCard at={at(cue.celinaName)} name="Celina Guimarães Viana" top={1370} />
+      <Badge at={at(cue.celinaBadge)} text="1ª ELEITORA DO BRASIL" top={1610} />
     </AbsoluteFill>
   );
 };
@@ -189,11 +195,11 @@ export const SceneAlzira: React.FC = () => {
       <Paper />
       <Portrait name="alzira" left={90} top={110} width={900} drawFrom={0} drawTo={at(22.2)} />
       <Year from={1927} to={1928} start={4} end={18} top={830} />
-      <Place at={at(20.5)} text="LAJES · RIO GRANDE DO NORTE" top={1300} />
-      <NameCard at={at(20.74)} name="Alzira Soriano" top={1370} />
-      <Badge at={at(22.42)} text="1ª PREFEITA DO BRASIL" top={1520} />
+      <Place at={at(cue.alziraPlace)} text="LAJES · RIO GRANDE DO NORTE" top={1300} />
+      <NameCard at={at(cue.alziraName)} name="Alzira Soriano" top={1370} />
+      <Badge at={at(cue.alziraBadge)} text="1ª PREFEITA DO BRASIL" top={1520} />
       <svg width={1080} height={1920} style={{ position: "absolute" }}>
-        <RoughShape kind="path" args="M90 1660 C 320 1640, 620 1650, 820 1635" from={at(22.9)} to={at(22.9) + 14} width={6} stroke={color.ink} seed={2} />
+        <RoughShape kind="path" args="M90 1660 C 320 1640, 620 1650, 820 1635" from={at(cue.alziraUnderline)} to={at(cue.alziraUnderline) + 14} width={6} stroke={color.ink} seed={2} />
       </svg>
     </AbsoluteFill>
   );
@@ -221,16 +227,16 @@ export const SceneBertha: React.FC = () => {
       <Portrait name="bertha" left={190} top={90} width={700} drawFrom={0} drawTo={at(26.8)} />
       <MarchRow top={1350} h={240} speed={3} offset={0} opacity={0.5} />
       <MarchRow top={1480} h={360} speed={5} offset={180} />
-      <Stamp at={at(24.8)} rotate={-4} style={{ left: 70, top: 900 }}>
+      <Stamp at={at(cue.berthaName)} rotate={-4} style={{ left: 70, top: 900 }}>
         <div style={{ ...display(170, color.paper), backgroundColor: color.ink, padding: "16px 28px 4px" }}>BERTHA LUTZ</div>
       </Stamp>
-      <Stamp at={at(25.7)} rotate={-4} style={{ left: 90, top: 1090 }}>
+      <Stamp at={at(cue.berthaMilhares)} rotate={-4} style={{ left: 90, top: 1090 }}>
         <div style={{ ...display(140, color.red) }}>+ MILHARES</div>
       </Stamp>
-      <Stamp at={at(26.2)} rotate={-4} style={{ left: 90, top: 1232 }}>
+      <Stamp at={at(cue.berthaMulheres)} rotate={-4} style={{ left: 90, top: 1232 }}>
         <div style={{ ...display(84, color.ink) }}>DE MULHERES</div>
       </Stamp>
-      <Stamp at={at(27.84)} rotate={5} style={{ left: 430, top: 1300 }}>
+      <Stamp at={at(cue.berthaAteLei)} rotate={5} style={{ left: 430, top: 1300 }}>
         <div style={{ ...display(76, color.paper), backgroundColor: color.red, padding: "10px 20px 2px" }}>ATÉ A LEI MUDAR</div>
       </Stamp>
     </AbsoluteFill>
@@ -238,8 +244,8 @@ export const SceneBertha: React.FC = () => {
 };
 
 // 7. Os dados de hoje: 52 de cada 100 eleitores são mulheres.
-const Person: React.FC<{ x: number; y: number; on: boolean }> = ({ x, y, on }) => (
-  <g transform={`translate(${x} ${y}) scale(0.85)`}>
+const Person: React.FC<{ x: number; y: number; on: boolean; pop?: number }> = ({ x, y, on, pop = 0 }) => (
+  <g transform={`translate(${x} ${y}) translate(22 40) scale(${0.85 * (1 + 0.35 * pop)}) translate(-22 -40)`}>
     <circle cx={22} cy={12} r={11} fill={on ? color.red : "none"} stroke={on ? color.red : color.ink} strokeWidth={3} />
     <path d="M22 26 L40 70 L4 70 Z" fill={on ? color.red : "none"} stroke={on ? color.red : color.ink} strokeWidth={3} strokeLinejoin="round" />
   </g>
@@ -248,8 +254,14 @@ const Person: React.FC<{ x: number; y: number; on: boolean }> = ({ x, y, on }) =
 export const SceneData: React.FC = () => {
   const at = useAt(scene.data);
   const frame = useCurrentFrame();
-  const n = Math.round(interpolate(frame, [at(30.4), at(32.62)], [0, 52], { ...clamp, easing: Easing.out(Easing.cubic) }));
-  const textO = interpolate(frame, [at(30.98), at(30.98) + 8], [0, 1], clamp);
+  const n = Math.round(interpolate(frame, [at(cue.dataCountStart), at(cue.dataCountEnd)], [0, 52], { ...clamp, easing: Easing.out(Easing.cubic) }));
+  const textO = interpolate(frame, [at(cue.dataText), at(cue.dataText) + 8], [0, 1], clamp);
+  // quadro em que a pessoa i acende (inverso da contagem com easing)
+  const lit = (i: number) => {
+    let f = at(cue.dataCountStart);
+    while (f < at(cue.dataCountEnd) && Math.round(interpolate(f, [at(cue.dataCountStart), at(cue.dataCountEnd)], [0, 52], { ...clamp, easing: Easing.out(Easing.cubic) })) <= i) f++;
+    return f;
+  };
   return (
     <AbsoluteFill>
       <Paper />
@@ -265,7 +277,7 @@ export const SceneData: React.FC = () => {
       </div>
       <svg width={1080} height={1920} style={{ position: "absolute" }}>
         {Array.from({ length: 100 }, (_, i) => (
-          <Person key={i} x={110 + (i % 10) * 88} y={790 + Math.floor(i / 10) * 70} on={i < n} />
+          <Person key={i} x={110 + (i % 10) * 88} y={790 + Math.floor(i / 10) * 70} on={i < n} pop={i < n ? Math.max(0, 1 - (frame - lit(i)) / 6) : 0} />
         ))}
       </svg>
     </AbsoluteFill>
@@ -287,19 +299,20 @@ export const SceneVoice: React.FC = () => {
           <rect x={-60} y={60} width={40} height={110} fill={color.paper} />
         </g>
       </svg>
+      <SoundRings cx={260} cy={1350} angle={-28} from={at(cue.voiceUse)} />
       <div style={{ position: "absolute", left: 80, top: 250, ...display(64, color.paper), letterSpacing: 3 }}>
-        {frame >= at(35.6) ? "ESSE DIREITO FOI CONQUISTADO." : ""}
+        {frame >= at(cue.voiceDireito) ? "ESSE DIREITO FOI CONQUISTADO." : ""}
       </div>
-      <Stamp at={at(37.46)} rotate={-10} style={{ left: 600, top: 330 }}>
+      <Stamp at={at(cue.voiceUse)} rotate={-10} style={{ left: 600, top: 330 }}>
         <div style={{ ...display(230, color.ink), backgroundColor: color.yellow, padding: "16px 30px 0" }}>USE.</div>
       </Stamp>
-      <Stamp at={at(37.88)} rotate={-10} style={{ left: 110, top: 600 }}>
+      <Stamp at={at(cue.voiceSeuVoto)} rotate={-10} style={{ left: 110, top: 600 }}>
         <div style={{ ...display(210, color.paper) }}>SEU VOTO</div>
       </Stamp>
-      <Stamp at={at(38.6)} rotate={-10} style={{ left: 250, top: 790 }}>
+      <Stamp at={at(cue.voiceESua)} rotate={-10} style={{ left: 250, top: 790 }}>
         <div style={{ ...display(190, color.yellow) }}>É SUA</div>
       </Stamp>
-      <Stamp at={at(38.88)} rotate={-10} style={{ left: 470, top: 990 }}>
+      <Stamp at={at(cue.voiceVoz)} rotate={-10} style={{ left: 470, top: 990 }}>
         <div style={{ ...display(330, color.paper), textShadow: `12px 12px 0 ${color.red}` }}>VOZ</div>
       </Stamp>
     </AbsoluteFill>
@@ -331,6 +344,7 @@ export const ScenePoster: React.FC = () => {
       >
         <Img src={staticFile("img/poster.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
+      <LightSweep from={24} dur={36} />
     </AbsoluteFill>
   );
 };

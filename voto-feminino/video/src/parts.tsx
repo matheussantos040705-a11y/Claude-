@@ -11,6 +11,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { color } from "./theme";
+import { InkBurst } from "./fx";
 
 const gen = rough.generator();
 
@@ -125,6 +126,7 @@ export const Stamp: React.FC<{
   const opacity = interpolate(frame - at, [0, 3], [0, 1], { extrapolateRight: "clamp" });
   return (
     <div style={{ position: "absolute", transform: `rotate(${rotate}deg) scale(${scale})`, opacity, ...style }}>
+      <InkBurst at={at} seed={`st${at}`} />
       {children}
     </div>
   );

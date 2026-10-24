@@ -14,6 +14,7 @@ import {
   SceneVoice,
 } from "./scenes";
 import { scene } from "./theme";
+import { FilmFX, useGateWeave, useShake } from "./fx";
 
 const order: [number, number, React.FC][] = [
   [scene.date, scene.law, SceneDate],
@@ -29,16 +30,21 @@ const order: [number, number, React.FC][] = [
 
 export const VotoFeminino: React.FC = () => {
   const { fps } = useVideoConfig();
+  const shake = useShake();
+  const weave = useGateWeave();
   return (
     <AbsoluteFill style={{ backgroundColor: "#15110F" }}>
-      {order.map(([from, to, Scene]) => (
-        <Sequence key={from} from={Math.round(from * fps)} durationInFrames={Math.round((to - from) * fps)}>
-          <Scene />
-        </Sequence>
-      ))}
+      <AbsoluteFill style={{ transform: `${weave} ${shake} scale(1.02)` }}>
+        {order.map(([from, to, Scene]) => (
+          <Sequence key={from} from={Math.round(from * fps)} durationInFrames={Math.round((to - from) * fps)}>
+            <Scene />
+          </Sequence>
+        ))}
+      </AbsoluteFill>
       {order.slice(1).map(([from]) => (
         <Wipe key={from} at={Math.round(from * fps)} />
       ))}
+      <FilmFX />
       <Vignette />
       <Audio src={staticFile("audio/mix.wav")} />
     </AbsoluteFill>
