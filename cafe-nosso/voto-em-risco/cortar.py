@@ -3,7 +3,7 @@ import json, subprocess, os
 import numpy as np
 O = "../recortes/originais"
 CLIPS = [
-    dict(id="figueiredo", src="figueiredo-votam-mal_ROVmydiCiwk", a=101.50, b=112.95,
+    dict(id="figueiredo", src="figueiredo-votam-mal_ROVmydiCiwk", a=101.50, b=113.35,
          nome="PAULO FIGUEIREDO", papel="influenciador, aliado de Eduardo Bolsonaro",
          fonte="live no YouTube, jun/2026 · exibida em telejornal (youtu.be/ROVmydiCiwk)", carimbo="MULHER VOTA MAL?"),
     dict(id="pietra1", src="pietra-voto_t15ErS3CcPY", a=111.60, b=118.10,

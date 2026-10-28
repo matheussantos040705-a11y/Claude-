@@ -1,0 +1,53 @@
+{
+ "total": 75.49,
+ "segments": [
+  {
+   "type": "clip",
+   "id": "figueiredo",
+   "from": 0,
+   "dur": 11.85
+  },
+  {
+   "type": "narr",
+   "id": "n1",
+   "from": 12.1,
+   "dur": 7.641
+  },
+  {
+   "type": "clip",
+   "id": "pietra1",
+   "from": 19.941,
+   "dur": 6.5
+  },
+  {
+   "type": "narr",
+   "id": "n2",
+   "from": 26.641,
+   "dur": 4.176
+  },
+  {
+   "type": "clip",
+   "id": "pietra2",
+   "from": 31.017,
+   "dur": 12.0
+  },
+  {
+   "type": "clip",
+   "id": "campopiano",
+   "from": 43.217,
+   "dur": 18.4
+  },
+  {
+   "type": "narr",
+   "id": "n3",
+   "from": 61.817,
+   "dur": 5.368
+  },
+  {
+   "type": "narr",
+   "id": "n4",
+   "from": 67.385,
+   "dur": 5.66
+  }
+ ]
+}

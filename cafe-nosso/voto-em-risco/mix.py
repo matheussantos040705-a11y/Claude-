@@ -56,7 +56,9 @@ for i in range(1, 5):
         if k not in sc or k not in tr: continue
         s = sc[k] - 4 * wer(norm(ref[i - 1]), norm(tr[k]))
         if best is None or s > best[0]: best = (s, k)
-    narr[f"n{i}"] = trim(load(f"narracao/{best[1]}"))
+    # 10% mais rápido (sem mudar o tom) para caber em ~70 s
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", f"narracao/{best[1]}", "-af", "atempo=1.1", "-ar", "48000", "narracao/_tmp.wav"], check=True)
+    narr[f"n{i}"] = trim(load("narracao/_tmp.wav"))
     print(f"n{i}: {best[1]}  {tr[best[1]]}")
 
 clips = {c["id"]: load(f"recortes/{c['id']}.wav") for c in json.load(open("clips.json"))}
@@ -64,14 +66,14 @@ clips = {c["id"]: load(f"recortes/{c['id']}.wav") for c in json.load(open("clips
 # ---------------------------------------------------------------- linha do tempo
 ORDER = [("clip", "figueiredo"), ("narr", "n1"), ("clip", "pietra1"), ("narr", "n2"), ("clip", "pietra2"),
          ("clip", "campopiano"), ("narr", "n3"), ("narr", "n4")]
-GAP = 0.35
+GAP = 0.2
 t = 0.3
 segs = []
 for kind, sid in ORDER:
     x = clips[sid] if kind == "clip" else narr[sid]
     segs.append(dict(type=kind, id=sid, start=t, dur=len(x) / SR))
     t += len(x) / SR + GAP
-TOTAL = round(t + 2.6, 2)          # respiro final com a assinatura
+TOTAL = round(t + 2.0, 2)          # respiro final com a assinatura
 for s in segs:                      # cada cena começa um pouco antes da fala
     s["from"] = round(max(0, s["start"] - 0.25), 3)
 segs[0]["from"] = 0
@@ -123,6 +125,7 @@ mus = Pedalboard([LowpassFilter(cutoff_frequency_hz=5000), Reverb(room_size=0.7,
 fx = np.zeros(N)
 def put(sig, at, g=1.0):
     i = int(at * SR)
+    if i < 0: sig = sig[-i:]; i = 0
     if i < N: fx[i:i + len(sig)] += sig[: N - i] * g
 def stamp(k=1.0):
     n = int(0.5 * SR); x = t_(n)
@@ -142,7 +145,7 @@ def boom(d=2.0):
     return np.tanh(np.sin(2 * np.pi * np.cumsum(32 + 70 * np.exp(-x / 0.15)) / SR) * env(n, 0.002, 0.7) * 1.8)
 fps = 30
 for s in segs:
-    put(whoosh(), s["from"] - 0.3, 0.5)
+    put(whoosh(0.4), s["start"] - 0.2, 0.35)
     if s["type"] == "clip":
         put(tape(), s["start"] - 0.12, 0.7)
         put(stamp(0.8), s["from"] + 0.9, 0.55)          # carimbo do recorte

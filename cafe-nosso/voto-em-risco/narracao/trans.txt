@@ -1,0 +1,12 @@
+t19/f1.wav|Em 1932, as mulheres conquistaram o direito de votar. Em 2026, tem gente achando que foi um erro.
+t19/f2.wav|O voto feminino foi uma conquista do feminismo.
+t19/f3.wav|Licença maternidade não é privilégio, é direito garantido pela Constituição.
+t19/f4.wav|Somos 52% do eleitorado. Seu voto é sua voz. Não deixa ninguém calar.
+t31/f1.wav|Em 1932, as mulheres conquistaram o direito de votar. Em 2026, tem gente achando que foi um erro.
+t31/f2.wav|O vato feminino foi uma conquista do feminismo.
+t31/f3.wav|Licença maternidade não é privilégio, é direito garantido pela Constituição.
+t31/f4.wav|Somos 52% do eleitorado. Seu voto é sua voz. Não deixe ninguém calar.
+t7/f1.wav|Em 1932, as mulheres conquistaram o direito de votar. Em 2026, tem gente achando que foi um erro.
+t7/f2.wav|O voto feminino foi uma conquista do feminismo.
+t7/f3.wav|Licença maternidade não é privilégio, é direito, garantido pela Constituição.
+t7/f4.wav|Somos 52% do eleitorado. Seu voto é sua voz. Não deixe ninguém calar.

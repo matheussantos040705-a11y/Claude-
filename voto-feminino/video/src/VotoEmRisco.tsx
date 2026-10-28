@@ -183,13 +183,13 @@ const N3: React.FC<{ dur: number }> = ({ dur }) => {
         <RoughShape kind="path" args="M90 760 C 380 745, 700 770, 990 750" from={6} to={22} width={8} stroke={color.red} seed={4} />
       </svg>
       <Stamp at={x} rotate={-8} style={{ left: 80, top: 1050 }}>
-        <div style={{ ...display(130, color.ink), position: "relative" }}>
-          NÃO É PRIVILÉGIO
+        <div style={{ ...display(170, color.ink), position: "relative" }}>
+          PRIVILÉGIO
           <div style={{ position: "absolute", left: -10, right: -10, top: "45%", height: 14, backgroundColor: color.red, transform: "rotate(-3deg)" }} />
         </div>
       </Stamp>
-      <Stamp at={d} rotate={6} style={{ left: 200, top: 1300 }}>
-        <div style={{ ...display(260, color.red), border: `16px solid ${color.red}`, padding: "16px 40px 0" }}>É DIREITO</div>
+      <Stamp at={d} rotate={6} style={{ left: 110, top: 1330 }}>
+        <div style={{ ...display(200, color.red), border: `16px solid ${color.red}`, padding: "16px 36px 0", whiteSpace: "nowrap" }}>É DIREITO</div>
       </Stamp>
     </AbsoluteFill>
   );
