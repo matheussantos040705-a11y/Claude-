@@ -3,6 +3,8 @@ import "./theme";
 import { VotoFeminino } from "./VotoFeminino";
 import { VotoMaximalista } from "./VotoMaximalista";
 import { Perfil } from "./Perfil";
+import { VotoEmRisco } from "./VotoEmRisco";
+import vrTimeline from "./vr-timeline.json";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -23,6 +25,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+      <Composition id="VotoEmRisco" component={VotoEmRisco} durationInFrames={Math.round(vrTimeline.total * 30)} fps={30} width={1080} height={1920} />
       <Composition id="Perfil" component={Perfil} durationInFrames={1} fps={30} width={1080} height={1080} />
     </>
   );
