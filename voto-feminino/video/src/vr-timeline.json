@@ -1,5 +1,5 @@
 {
- "total": 75.49,
+ "total": 78.29,
  "segments": [
   {
    "type": "clip",
@@ -48,6 +48,12 @@
    "id": "n4",
    "from": 67.385,
    "dur": 5.66
+  },
+  {
+   "type": "poster",
+   "id": "unidas",
+   "from": 73.694,
+   "dur": 4.6
   }
  ]
 }

@@ -73,10 +73,13 @@ for kind, sid in ORDER:
     x = clips[sid] if kind == "clip" else narr[sid]
     segs.append(dict(type=kind, id=sid, start=t, dur=len(x) / SR))
     t += len(x) / SR + GAP
-TOTAL = round(t + 2.0, 2)          # respiro final com a assinatura
 for s in segs:                      # cada cena começa um pouco antes da fala
     s["from"] = round(max(0, s["start"] - 0.25), 3)
 segs[0]["from"] = 0
+POSTER = 4.6                        # cartaz "Unidas por um bem maior" fechando o vídeo
+segs.append(dict(type="poster", id="unidas", start=round(t + 0.2, 3), dur=POSTER))
+segs[-1]["from"] = segs[-1]["start"]
+TOTAL = round(segs[-1]["from"] + POSTER, 2)
 N = int(TOTAL * SR)
 print("total", TOTAL)
 
@@ -88,6 +91,7 @@ def lp(x, k): return np.convolve(x, np.ones(k) / k, "same")
 
 voice = np.zeros(N, np.float32)
 for s in segs:
+    if s["type"] == "poster": continue
     x = clips[s["id"]] if s["type"] == "clip" else narr[s["id"]]
     i = int(s["start"] * SR); voice[i:i + len(x)] += x[: N - i]
 voice_n = np.zeros(N, np.float32)   # só a narração (para o tratamento de voz)
@@ -143,26 +147,83 @@ def tape():
 def boom(d=2.0):
     n = int(d * SR); x = t_(n)
     return np.tanh(np.sin(2 * np.pi * np.cumsum(32 + 70 * np.exp(-x / 0.15)) / SR) * env(n, 0.002, 0.7) * 1.8)
+def paper(d=0.45):
+    """Papel deslizando/folha virando."""
+    n = int(d * SR); x = t_(n)
+    s_ = (lp(noise(n), 2) - lp(noise(n), 8)) * (0.6 + 0.4 * np.abs(np.sin(2 * np.pi * 9 * x)))
+    return s_ * np.sin(np.pi * x / d) * 0.9
+def static(d=0.25):
+    n = int(d * SR); return (noise(n) - lp(noise(n), 3)) * (rng.random(n) > 0.6) * np.exp(-t_(n) / 0.08) * 0.8
+def whistle(d=0.32):
+    n = int(d * SR); x = t_(n)
+    return np.sin(2 * np.pi * np.cumsum(np.linspace(1700, 500, n)) / SR) * np.sin(np.pi * x / d) * 0.3 + whoosh(d) * 0.4
+def scratch():
+    """Arranhão de disco: o tempo 'volta' para 2026."""
+    n = int(0.5 * SR); x = t_(n)
+    f = 300 + 1800 * np.abs(np.sin(2 * np.pi * 3 * x))
+    return (np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.4 + (noise(n) - lp(noise(n), 6)) * 0.5) * env(n, 0.002, 0.18)
+def marker(d=0.5):
+    n = int(d * SR); x = t_(n)
+    sq = np.sin(2 * np.pi * np.cumsum(1100 + 300 * np.sin(2 * np.pi * 9 * x)) / SR) * 0.15
+    return ((noise(n) - lp(noise(n), 4)) * 0.4 + sq) * np.sin(np.pi * x / d)
+def tick(f=1800):
+    n = int(0.05 * SR); return (np.sin(2 * np.pi * f * t_(n)) * 0.6 + (noise(n) - lp(noise(n), 4)) * 0.4) * env(n, 0.0002, 0.012)
+def heartbeat(d):
+    n = int(d * SR); out = np.zeros(n); b = int(0.25 * SR); x = t_(b)
+    lub = np.sin(2 * np.pi * np.cumsum(50 + 30 * np.exp(-x / 0.02)) / SR) * env(b, 0.002, 0.06)
+    for k in range(int(d / 0.92)):
+        for off, g in ((0, 1), (0.28, 0.6)):
+            i = int((k * 0.92 + off) * SR)
+            if i + b < n: out[i:i + b] += lub * g
+    return out
+def crowd(d, seed, cheer=True):
+    r = np.random.default_rng(seed); n = int(d * SR); x = t_(n); out = np.zeros(n)
+    for _ in range(20):
+        f0 = r.uniform(170, 320) if r.random() > 0.3 else r.uniform(100, 160)
+        ph = np.cumsum(f0 * (1 + 0.03 * np.sin(2 * np.pi * r.uniform(3, 6) * x) + 0.25 * x / d)) / SR
+        out += lp(np.sign(np.sin(2 * np.pi * ph)) * 0.3 + np.sin(2 * np.pi * ph), 3) * r.uniform(0.3, 1)
+    return (out / 12 + (r.standard_normal(n) - lp(r.standard_normal(n), 25)) * 0.15) * np.minimum(1, x / 0.8) ** 2
+def riser(d):
+    n = int(d * SR); x = t_(n)
+    return ((noise(n) - lp(noise(n), 40)) * (x / d) ** 2.5 + np.sin(2 * np.pi * np.cumsum(200 + 1400 * (x / d) ** 2) / SR) * (x / d) ** 3 * 0.25) * 1.2
 fps = 30
+S = {s["id"]: s for s in segs}
+dur_f = lambda s: (next((x["from"] for x in segs if x["from"] > s["from"]), TOTAL) - s["from"]) * fps
+def hits(s, fr, g=0.6):
+    for f in fr: put(stamp(), s["from"] + f / fps, g)
 for s in segs:
     put(whoosh(0.4), s["start"] - 0.2, 0.35)
     if s["type"] == "clip":
-        put(tape(), s["start"] - 0.12, 0.7)
+        put(static(), s["start"] - 0.2, 0.5)            # chiado de rádio
+        put(tape(), s["start"] - 0.12, 0.7)             # clique da fita
+        put(paper(0.5), s["from"], 0.45)                # cartão entrando
         put(stamp(0.8), s["from"] + 0.9, 0.55)          # carimbo do recorte
-dur_f = lambda s: (next((x["from"] for x in segs if x["from"] > s["from"]), TOTAL) - s["from"]) * fps
-def hits(s, fr):
-    for f in fr: put(stamp(), s["from"] + f / fps, 0.6)
-S = {s["id"]: s for s in segs}
-d = dur_f(S["n1"]); hits(S["n1"], [4, round(d * 0.42), round(d * 0.42) + 18])
-d = dur_f(S["n2"]); hits(S["n2"], [9, round(d * 0.38) + 9, round(d * 0.66) + 9])
-d = dur_f(S["n3"]); hits(S["n3"], [round(d * 0.12), round(d * 0.5)])
-d = dur_f(S["n4"]); hits(S["n4"], [round(d * 0.42), round(d * 0.56)]); put(boom(), S["n4"]["from"] + round(d * 0.68) / fps, 0.8)
-put(boom(2.5), S["n4"]["from"] + round(d * 0.86) / fps, 0.6)
-# projetor ao fundo
-proj = np.zeros(N); c = (noise(300) - lp(noise(300), 4)) * env(300, 0.0002, 0.0015)
-for k in range(int(TOTAL * 24)):
-    i = int(k / 24 * SR); proj[i:i + 300] += c[: max(0, N - i)]
-fx += proj * 0.12
+# coração tenso sob a fala da deputada
+c = S["campopiano"]; put(heartbeat(c["dur"]) * np.minimum(1, t_(int(c["dur"] * SR)) / 2), c["start"], 0.35)
+# 1932 → 2026
+d = dur_f(S["n1"]); a = round(d * 0.42)
+hits(S["n1"], [4, a, a + 18]); put(crowd(2.2, 3) * np.exp(-t_(int(2.2 * SR)) / 1.2), S["n1"]["from"] + 0.15, 0.25)
+put(scratch(), S["n1"]["from"] + (a - 8) / fps, 0.5)
+# palavras caindo
+d = dur_f(S["n2"])
+for f in (0, round(d * 0.38), round(d * 0.66)):
+    put(whistle(), S["n2"]["from"] + f / fps, 0.5); hits(S["n2"], [f + 9])
+# Constituição: folha, grifo, risco, carimbo
+d = dur_f(S["n3"]); x3 = round(d * 0.12); d3 = round(d * 0.5)
+put(paper(0.6), S["n3"]["from"], 0.6); put(marker(0.5), S["n3"]["from"] + 6 / fps, 0.5)
+hits(S["n3"], [x3]); put(marker(0.3), S["n3"]["from"] + (x3 + 4) / fps, 0.6); hits(S["n3"], [d3], 0.8)
+# 52%, seu voto é sua voz
+d = dur_f(S["n4"]); prev = 0
+for f in range(0, round(d * 0.3) + 1):
+    v = round(52 * (1 - (1 - min(1, f / (d * 0.3))) ** 3))
+    for j in range(v - prev): put(tick(1200 + 25 * (prev + j)), S["n4"]["from"] + f / fps + j * 0.006, 0.3)
+    prev = v
+hits(S["n4"], [round(d * 0.42), round(d * 0.56)])
+put(crowd(d / fps * 0.5 + 5.5, 21), S["n4"]["from"] + d / fps * 0.4, 0.4)
+put(boom(), S["n4"]["from"] + round(d * 0.68) / fps, 0.8)
+# cartaz final
+P = S["unidas"]
+put(riser(1.0), P["from"] - 1.0, 0.35); put(boom(3.0), P["from"], 0.85); put(paper(0.7), P["from"] + 0.05, 0.6)
 fx = Pedalboard([Reverb(room_size=0.35, wet_level=0.12)])(fx.astype(np.float32), SR)
 
 # ---------------------------------------------------------------- mixagem com ducking

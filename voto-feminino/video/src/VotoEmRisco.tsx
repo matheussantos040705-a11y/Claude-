@@ -1,8 +1,8 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, random, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, Img, interpolate, random, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { Audio } from "@remotion/media";
 import { Paper, Rays, RoughShape, Stamp, Vignette, Wipe } from "./parts";
-import { FilmFX, InkBurst } from "./fx";
+import { FilmFX, InkBurst, LightSweep } from "./fx";
 import { color, font } from "./theme";
 import clips from "./vr-clips.json";
 import timeline from "./vr-timeline.json";
@@ -11,7 +11,7 @@ import timeline from "./vr-timeline.json";
 // vr-clips.json vem de cafe-nosso/voto-em-risco/cortar.py; vr-timeline.json de mix.py.
 
 type Clip = { id: string; nome: string; papel: string; fonte: string; carimbo: string; wave: number[]; caps: [string, number][] };
-type Seg = { type: "clip" | "narr"; id: string; from: number; dur: number };
+type Seg = { type: "clip" | "narr" | "poster"; id: string; from: number; dur: number };
 
 const display = (size: number, c: string = color.ink): React.CSSProperties => ({
   fontFamily: font.display, fontWeight: 700, fontSize: size, lineHeight: 0.88, color: c, textTransform: "uppercase", letterSpacing: -1,
@@ -198,12 +198,9 @@ const N3: React.FC<{ dur: number }> = ({ dur }) => {
 // 4. 52%, seu voto é sua voz, assinatura Café Nosso.
 const N4: React.FC<{ dur: number }> = ({ dur }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const n = Math.round(interpolate(frame, [0, Math.round(dur * 0.3)], [0, 52], { ...clamp, easing: Easing.out(Easing.cubic) }));
   const v1 = Math.round(dur * 0.42), v2 = Math.round(dur * 0.56), v3 = Math.round(dur * 0.68);
-  const end = Math.round(dur * 0.86);
-  const shake = useShake([v1, v2, v3, end]);
-  const card = spring({ frame: frame - end, fps, config: { damping: 18 } });
+  const shake = useShake([v1, v2, v3]);
   return (
     <AbsoluteFill style={{ transform: shake }}>
       <Rays a={color.ink} b={color.redDark} cx={540} cy={1000} speed={0.25} count={16} />
@@ -214,15 +211,36 @@ const N4: React.FC<{ dur: number }> = ({ dur }) => {
       <Stamp at={v1} rotate={-8} style={{ left: 90, top: 720 }}><div style={{ ...display(200, color.paper) }}>SEU VOTO</div></Stamp>
       <Stamp at={v2} rotate={-8} style={{ left: 220, top: 920 }}><div style={{ ...display(180, color.yellow) }}>É SUA</div></Stamp>
       <Stamp at={v3} rotate={-8} style={{ left: 420, top: 1100 }}><div style={{ ...display(300, color.paper), textShadow: `12px 12px 0 ${color.red}` }}>VOZ</div></Stamp>
-      {frame >= end ? (
-        <div style={{
-          position: "absolute", left: 0, right: 0, top: 1480, display: "flex", flexDirection: "column", alignItems: "center",
-          transform: `scale(${interpolate(card, [0, 1], [1.6, 1])})`, opacity: card,
-        }}>
-          <div style={{ ...display(150, color.ink), backgroundColor: color.paper, padding: "18px 40px 6px", boxShadow: `14px 14px 0 ${color.red}` }}>☕ CAFÉ NOSSO</div>
-          <div style={{ fontFamily: font.mono, fontSize: 28, letterSpacing: 4, color: color.paper, marginTop: 30 }}>FONTES NA LEGENDA</div>
-        </div>
-      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+// 5. Cartaz "Unidas por um bem maior" batendo na tela e assinatura.
+const PosterEnd: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame, fps, config: { damping: 15, stiffness: 110 } });
+  const shake = useShake([2], 22);
+  const push = interpolate(frame, [0, 140], [1, 1.04]);
+  const fade = interpolate(frame, [118, 138], [1, 0], clamp);
+  return (
+    <AbsoluteFill style={{ transform: shake, opacity: fade }}>
+      <Rays a={color.redDark} b={color.red} cy={860} speed={0.15} count={20} />
+      <div style={{
+        position: "absolute", left: 90, top: 260, width: 900, height: 1116,
+        transform: `scale(${interpolate(s, [0, 1], [1.6, 1]) * push}) rotate(${interpolate(s, [0, 1], [-8, -2])}deg)`,
+        border: `14px solid ${color.paper}`, boxShadow: `22px 22px 0 ${color.ink}`, overflow: "hidden",
+      }}>
+        <Img src={staticFile("img/unidas.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <LightSweep from={14} dur={36} />
+      </div>
+      <InkBurst at={2} seed="poster" n={26} c={color.paper} />
+      <div style={{
+        position: "absolute", left: 0, right: 0, top: 1500, textAlign: "center", fontFamily: font.mono, fontSize: 30, letterSpacing: 5,
+        color: color.paper, opacity: interpolate(frame, [30, 45], [0, 1], clamp),
+      }}>
+        ☕ CAFÉ NOSSO · FONTES NA LEGENDA
+      </div>
     </AbsoluteFill>
   );
 };
@@ -241,7 +259,7 @@ export const VotoEmRisco: React.FC = () => {
         const clip = (clips as unknown as Clip[]).find((c) => c.id === s.id);
         return (
           <Sequence key={i} from={from} durationInFrames={next - from}>
-            {s.type === "clip" && clip ? <ClipScene clip={clip} /> : Narr ? <Narr dur={next - from} /> : null}
+            {s.type === "poster" ? <PosterEnd /> : s.type === "clip" && clip ? <ClipScene clip={clip} /> : Narr ? <Narr dur={next - from} /> : null}
           </Sequence>
         );
       })}
