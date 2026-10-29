@@ -28,3 +28,20 @@ export const CapaFeminicidio: React.FC = () => (
     </div>
   </AbsoluteFill>
 );
+
+// Versão para o feed (4:5, 1080×1350): mesma arte, enquadrada do punho ao grupo de mulheres.
+export const CapaFeminicidioFeed: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: color.ink, overflow: "hidden" }}>
+    <Img src={staticFile("img/capa-feminicidio.png")} style={{ position: "absolute", left: 0, top: -230, width: 1080, height: 1922 }} />
+    <div style={{ position: "absolute", right: 40, top: 40, textAlign: "right" }}>
+      <div style={{ ...display(150, color.paper), textShadow: `8px 8px 0 ${color.ink}` }}>FEMINICÍDIO</div>
+      <div style={{ ...display(212, color.yellow), textShadow: `10px 10px 0 ${color.ink}`, marginTop: 4 }}>EXISTE.</div>
+    </div>
+    <div style={{ position: "absolute", right: 40, top: 560, textAlign: "right", backgroundColor: color.ink, padding: "12px 18px 6px", boxShadow: `6px 6px 0 ${color.paper}` }}>
+      <div style={{ ...display(60, color.paper) }}>1.571 MULHERES</div>
+      <div style={{ ...display(60, color.paper) }}>MORTAS EM 2025</div>
+      <div style={{ ...display(40, color.red), marginTop: 6 }}>RECORDE HISTÓRICO</div>
+    </div>
+    <div style={{ position: "absolute", left: 30, top: 1280, fontFamily: font.mono, fontSize: 26, letterSpacing: 5, color: color.paper, backgroundColor: "rgba(21,17,15,0.85)", padding: "8px 18px" }}>☕ CAFÉ NOSSO</div>
+  </AbsoluteFill>
+);
