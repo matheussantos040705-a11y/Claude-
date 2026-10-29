@@ -10,16 +10,16 @@ import timeline from "./vr-timeline.json";
 // "Querem tirar o seu voto" — Café Nosso. Recortes reais (áudio original) intercalados com a narração.
 // vr-clips.json vem de cafe-nosso/voto-em-risco/cortar.py; vr-timeline.json de mix.py.
 
-type Clip = { id: string; nome: string; papel: string; fonte: string; carimbo: string; wave: number[]; caps: [string, number][] };
+export type Clip = { id: string; nome: string; papel: string; fonte: string; carimbo: string; wave: number[]; caps: [string, number][] };
 type Seg = { type: "clip" | "narr" | "poster"; id: string; from: number; dur: number };
 
-const display = (size: number, c: string = color.ink): React.CSSProperties => ({
+export const display = (size: number, c: string = color.ink): React.CSSProperties => ({
   fontFamily: font.display, fontWeight: 700, fontSize: size, lineHeight: 0.88, color: c, textTransform: "uppercase", letterSpacing: -1,
 });
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+export const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 // Tremor curto quando algo bate na tela (instantes em quadros locais).
-const useShake = (hits: number[], amp = 16) => {
+export const useShake = (hits: number[], amp = 16) => {
   const frame = useCurrentFrame();
   let x = 0, y = 0;
   for (const h of hits) {
@@ -47,7 +47,7 @@ const Wave: React.FC<{ wave: number[] }> = ({ wave }) => {
 };
 
 // Recorte: cartão de papel com nome, fala original legendada, forma de onda e fonte.
-const ClipScene: React.FC<{ clip: Clip }> = ({ clip }) => {
+export const ClipScene: React.FC<{ clip: Clip }> = ({ clip }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({ frame, fps, config: { damping: 16, stiffness: 120 } });
@@ -138,7 +138,7 @@ const N1: React.FC<{ dur: number }> = ({ dur }) => {
 };
 
 // Palavra que cai do alto e bate (mesma física do vídeo anterior).
-const Falling: React.FC<{ at: number; top: number; c: string; size: number; children: React.ReactNode }> = ({ at, top, c, size, children }) => {
+export const Falling: React.FC<{ at: number; top: number; c: string; size: number; children: React.ReactNode }> = ({ at, top, c, size, children }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({ frame: frame - at, fps, config: { damping: 9, stiffness: 140, mass: 0.9 } });
