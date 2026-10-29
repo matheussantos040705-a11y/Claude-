@@ -10,7 +10,7 @@ import timeline from "./vr-timeline.json";
 // "Querem tirar o seu voto" — Café Nosso. Recortes reais (áudio original) intercalados com a narração.
 // vr-clips.json vem de cafe-nosso/voto-em-risco/cortar.py; vr-timeline.json de mix.py.
 
-export type Clip = { id: string; nome: string; papel: string; fonte: string; carimbo: string; wave: number[]; caps: [string, number][] };
+export type Clip = { id: string; nome: string; papel: string; fonte: string; carimbo: string; wave: number[]; caps: [string, number][]; dur?: number };
 type Seg = { type: "clip" | "narr" | "poster"; id: string; from: number; dur: number };
 
 export const display = (size: number, c: string = color.ink): React.CSSProperties => ({
@@ -51,7 +51,8 @@ export const ClipScene: React.FC<{ clip: Clip }> = ({ clip }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({ frame, fps, config: { damping: 16, stiffness: 120 } });
-  const stampAt = Math.round(fps * 0.9);
+  // recortes curtos (ex.: "Rejeitado") carimbam mais cedo; mesma conta no mix.py
+  const stampAt = Math.round(fps * Math.min(0.9, Math.max(0.25, (clip.dur ?? 3) * 0.35)));
   const shake = useShake([stampAt]);
   const t = frame / fps;
   // frases já ditas ficam no cartão, esmaecidas; a atual entra revelada

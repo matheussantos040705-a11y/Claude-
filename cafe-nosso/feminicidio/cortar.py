@@ -9,7 +9,7 @@ CLIPS = [
     dict(id="camp2", src="campopiano-nao-existe_1AxFA1uv2vc", a=30.80, b=36.75,
          nome="EDUARDA CAMPOPIANO", papel="deputada estadual eleita (PL-SP)", fonte="YouTube (youtu.be/1AxFA1uv2vc)", carimbo="NÃO EXISTE?",
          caps=[["“O feminicídio não existe.", 0.07], ["É uma tipificação que, primeiro, juridicamente, ela não funciona pra evitar que o crime aconteça.”", 1.35]]),
-    dict(id="sen1", src="senado-sug44_cFyvNdWR7M8", a=1.25, b=10.30,
+    dict(id="sen1", src="senado-sug44_cFyvNdWR7M8", a=1.25, b=10.85,
          nome="SENADO FEDERAL", papel="Comissão de Direitos Humanos · 2017", fonte="TV Senado (youtu.be/cFyvNdWR7M8)", carimbo="SUG 44/2017",
          caps=[["“Sugestão 44 de 2017, proveniente do programa de cidadania,", 0.13], ["que busca a extinção do termo feminicídio", 4.05], ["e a criação de agravante para qualquer crime passional.”", 6.03]]),
     dict(id="sen2", src="senado-sug44_cFyvNdWR7M8", a=137.85, b=153.75,

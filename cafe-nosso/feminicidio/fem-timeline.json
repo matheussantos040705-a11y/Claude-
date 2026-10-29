@@ -1,0 +1,71 @@
+{
+ "total": 82.63,
+ "segments": [
+  {
+   "type": "clip",
+   "id": "camp1",
+   "from": 0,
+   "dur": 7.85
+  },
+  {
+   "type": "clip",
+   "id": "camp2",
+   "from": 8.45,
+   "dur": 5.95
+  },
+  {
+   "type": "narr",
+   "id": "n1",
+   "from": 14.6,
+   "dur": 8.325
+  },
+  {
+   "type": "narr",
+   "id": "n2",
+   "from": 23.125,
+   "dur": 10.467
+  },
+  {
+   "type": "narr",
+   "id": "n3",
+   "from": 33.792,
+   "dur": 3.034
+  },
+  {
+   "type": "clip",
+   "id": "sen1",
+   "from": 37.026,
+   "dur": 9.6
+  },
+  {
+   "type": "clip",
+   "id": "sen2",
+   "from": 47.176,
+   "dur": 15.9
+  },
+  {
+   "type": "clip",
+   "id": "sen3",
+   "from": 63.626,
+   "dur": 0.9
+  },
+  {
+   "type": "narr",
+   "id": "n4",
+   "from": 65.626,
+   "dur": 8.957
+  },
+  {
+   "type": "narr",
+   "id": "n5",
+   "from": 74.783,
+   "dur": 3.796
+  },
+  {
+   "type": "end",
+   "id": "end",
+   "from": 79.629,
+   "dur": 3.0
+  }
+ ]
+}

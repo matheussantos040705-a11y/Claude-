@@ -70,10 +70,11 @@ ORDER = [("clip", "camp1"), ("clip", "camp2"), ("narr", "n1"), ("narr", "n2"), (
 GAP = 0.2
 t = 0.3
 segs = []
-for kind, sid in ORDER:
+for k, (kind, sid) in enumerate(ORDER):
     x = clips[sid] if kind == "clip" else narr[sid]
     segs.append(dict(type=kind, id=sid, start=t, dur=len(x) / SR))
-    t += len(x) / SR + GAP
+    nxt = ORDER[k + 1][0] if k + 1 < len(ORDER) else None
+    t += len(x) / SR + (0.55 if kind == "clip" and nxt == "clip" else 1.1 if len(x) / SR < 1.5 else GAP)   # respiro entre recortes / após recorte curto
 for s in segs:                      # cada cena começa um pouco antes da fala
     s["from"] = round(max(0, s["start"] - 0.25), 3)
 segs[0]["from"] = 0
@@ -192,13 +193,14 @@ S = {s["id"]: s for s in segs}
 dur_f = lambda s: (next((x["from"] for x in segs if x["from"] > s["from"]), TOTAL) - s["from"]) * fps
 def hits(s, fr, g=0.6):
     for f in fr: put(stamp(), s["from"] + f / fps, g)
-for s in segs:
-    put(whoosh(0.4), s["start"] - 0.2, 0.35)
+for k, s in enumerate(segs):
+    after_clip = k > 0 and segs[k - 1]["type"] == "clip"
+    if not after_clip: put(whoosh(0.4), s["start"] - 0.2, 0.35)
     if s["type"] == "clip":
-        put(static(), s["start"] - 0.2, 0.5)            # chiado de rádio
+        if not after_clip: put(static(), s["start"] - 0.2, 0.5)   # chiado de rádio
         put(tape(), s["start"] - 0.12, 0.7)             # clique da fita
         put(paper(0.5), s["from"], 0.45)                # cartão entrando
-        put(stamp(0.8), s["from"] + 0.9, 0.55)          # carimbo do recorte
+        put(stamp(0.8), s["from"] + min(0.9, max(0.25, s["dur"] * 0.35)), 0.55)   # carimbo do recorte
 # coração tenso sob as falas da deputada
 c = S["camp1"]; L = S["camp2"]["start"] + S["camp2"]["dur"] - c["start"]
 put(heartbeat(L) * np.minimum(1, t_(int(L * SR)) / 1.5), c["start"], 0.35)
@@ -222,8 +224,8 @@ hits(S["n4"], [round(d * 0.28), round(d * 0.42)]); put(boom(1.6), S["n4"]["from"
 # fecho
 d = dur_f(S["n5"]); put(boom(), S["n5"]["from"] + 2 / fps, 0.7)
 hits(S["n5"], [round(d * 0.32), round(d * 0.46)]); put(boom(2.5), S["n5"]["from"] + round(d * 0.6) / fps, 0.8)
-# "Rejeitado": martelo
-put(stamp(1.3), S["sen3"]["start"] + 0.35, 0.8)
+# "Rejeitado": martelo reforçando o carimbo
+put(boom(1.5), S["sen3"]["from"] + min(0.9, max(0.25, S["sen3"]["dur"] * 0.35)), 0.6)
 E = S["end"]; put(riser(0.8), E["from"] - 0.8, 0.25)
 fx = Pedalboard([Reverb(room_size=0.35, wet_level=0.12)])(fx.astype(np.float32), SR)
 

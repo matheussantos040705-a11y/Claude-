@@ -1,0 +1,15 @@
+t19/f1.wav|Em 2025, 1.570 e uma mulheres foram mortas no Brasil por serem mulheres. Recorde pelo quarto ano seguido.
+t19/f2.wav|O termo nasceu em 1976 com a socióloga Diana Russell. No México, Marcelo Alagarde deu nome às mulheres assassinadas em Ciudad Juárez. No Brasil, virou lei em 2015.
+t19/f3.wav|e desde o começo tem gente querendo apagar esse nome.
+t19/f4.wav|ciúme, traição, fim de namoro, isso não é paixão, é violência contra a mulher. Hoje, feminicídio é crime, com pena de 20 a 40 anos.
+t19/f5.wav|Feminicídio existe. Tem nome, tem lei e tem pena.
+t31/f1.wav|Em 2025, 1.571 mulheres foram mortas no Brasil por serem mulheres. Recorte pelo quarto ano seguido.
+t31/f2.wav|O termo nasceu em 1976 com a socióloga Diana Russell. No México, Marcela Lagarde deu nome às mulheres assassinadas em Ciudad Juárez. No Brasil, virou lei em 2015.
+t31/f3.wav|Desde o começo, tem gente querendo apagar esse nome.
+t31/f4.wav|Se hume, traição, fim de namoro, isso não é paixão, é violência contra a mulher. Hoje, feminicídio é crime, com pena de 20 a 40 anos.
+t31/f5.wav|Feminicídio existe. Tem nome, tem lei e tem pena.
+t7/f1.wav|Em 2025, 1.571 mulheres foram mortas no Brasil por serem mulheres. Recorde pelo quarto ano seguido.
+t7/f2.wav|O termo nasceu em 1976 com a socióloga Diana Rousseau. No México, Marcelo Lagarde deu nome às mulheres assassinadas em Ciudad de Oares. No Brasil, virou lei em 2015.
+t7/f3.wav|e desde o começo tem gente querendo apagar esse nome.
+t7/f4.wav|Se une, traição, fim de namoro, isso não é paixão, é violência contra a mulher. Hoje, feminicídia é crime, com pena de 20 a 40 anos.
+t7/f5.wav|Feminicídio existe. Tem nome, tem lei e tem pena.
